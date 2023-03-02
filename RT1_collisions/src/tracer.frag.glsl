@@ -183,9 +183,16 @@ bool ray_plane_intersection(
 
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
-	t = MAX_RANGE + 10.;
+	//t = MAX_RANGE + 10.;
 	//normal = ...;
-	return false;
+	if (dot(plane_normal, ray_direction) == 0.0 ) {
+		t = MAX_RANGE + 10.;
+		return false;
+	} else {
+		t = (plane_offset - dot(plane_normal,ray_origin)) / dot(ray_direction, plane_normal);
+		normal = - sign(dot(ray_direction, plane_normal)) * plane_normal;
+		return t > 0.0 ;
+	}
 }
 
 /*
@@ -206,7 +213,43 @@ bool ray_cylinder_intersection(
 	*/
 
 	vec3 intersection_point;
-	t = MAX_RANGE + 10.;
+
+	vec2 solutions; // solutions will be stored here
+
+	int num_solutions = solve_quadratic(
+		// A: 
+		- dot(ray_direction * ray_direction, cyl.axis * cyl.axis) + dot(ray_direction, ray_direction), 
+		// B: 
+		2. *(dot(ray_direction, ray_origin) -  dot(ray_direction, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)*dot(cyl.axis, ray_direction)),	
+		// C: 			
+		dot(ray_origin, ray_origin) - 2. * dot(ray_origin, cyl.center) + dot(cyl.center, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) - cyl.radius * cyl.radius,
+		// where to store solutions
+		solutions
+	);
+
+	// result = distance to collision
+	// MAX_RANGE means there is no collision found
+	t = MAX_RANGE+10.;
+	bool collision_happened = false;
+
+	if (num_solutions >= 1 && solutions[0] > 0.) {
+		t = solutions[0];
+	}
+	
+	
+	if (num_solutions >= 2 && solutions[1] > 0. && solutions[1] < t) {
+		t = solutions[1];
+	}
+
+	float b = 2. * dot(ray_origin + ray_direction * t - cyl.center, cyl.axis);
+	//2. * (dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + 2. * t * dot(ray_direction, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + t * t * dot(ray_direction * ray_direction, cyl.axis * cyl.axis));
+	if (t < MAX_RANGE && b <= cyl.height && t > 0.) {
+		vec3 intersection_point = ray_origin + ray_direction * t;
+		normal = normalize(intersection_point - cyl.center) / cyl.radius;
+		return true;
+	} else {
+		return false;
+	}	
 
 	return false;
 }
