@@ -230,7 +230,6 @@ bool ray_cylinder_intersection(
 	// result = distance to collision
 	// MAX_RANGE means there is no collision found
 	t = MAX_RANGE+10.;
-	bool collision_happened = false;
 
 	if (num_solutions >= 1 && solutions[0] > 0.) {
 		t = solutions[0];
@@ -241,17 +240,30 @@ bool ray_cylinder_intersection(
 		t = solutions[1];
 	}
 
+
 	float b = 2. * dot(ray_origin + ray_direction * t - cyl.center, cyl.axis);
 	//2. * (dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + 2. * t * dot(ray_direction, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + t * t * dot(ray_direction * ray_direction, cyl.axis * cyl.axis));
-	if (t < MAX_RANGE && b <= cyl.height && t > 0.) {
+	if (t < MAX_RANGE && abs(b) <= cyl.height && t > 0.) {
 		vec3 intersection_point = ray_origin + ray_direction * t;
 		normal = normalize(intersection_point - cyl.center) / cyl.radius;
+		if (dot(ray_origin - intersection_point, normal) < 0.){
+			normal = - normal;
+		}
 		return true;
-	} else {
+	} else if (num_solutions >= 2){
+		if (t == solutions[0]) t = solutions[1];
+		else if (t == solutions[1]) t = solutions[0];
+		b = 2. * dot(ray_origin + ray_direction * t - cyl.center, cyl.axis);
+		if (t < MAX_RANGE && abs(b) <= cyl.height && t > 0.) {
+			vec3 intersection_point = ray_origin + ray_direction * t;
+			normal = normalize(intersection_point - cyl.center) / cyl.radius;
+			if (dot(ray_origin - intersection_point, normal) < 0.){
+				normal = - normal;
+			}
+			return true;
+		}
 		return false;
-	}	
-
-	return false;
+	} else return false;
 }
 
 
