@@ -212,15 +212,13 @@ bool ray_cylinder_intersection(
 	- return whether there is an intersection with t > 0
 	*/
 
-	vec3 intersection_point;
-
 	vec2 solutions; // solutions will be stored here
 
 	int num_solutions = solve_quadratic(
 		// A: 
-		- dot(ray_direction * ray_direction, cyl.axis * cyl.axis) + dot(ray_direction, ray_direction), 
+		-pow(dot(ray_direction,cyl.axis),2.) + dot(ray_direction,ray_direction),
 		// B: 
-		2. *(dot(ray_direction, ray_origin) -  dot(ray_direction, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)*dot(cyl.axis, ray_direction)),	
+		2. *(dot(ray_direction, ray_origin) -  dot(ray_direction, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)*dot(cyl.axis, ray_direction)),
 		// C: 			
 		dot(ray_origin, ray_origin) - 2. * dot(ray_origin, cyl.center) + dot(cyl.center, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) - cyl.radius * cyl.radius,
 		// where to store solutions
@@ -240,29 +238,33 @@ bool ray_cylinder_intersection(
 		t = solutions[1];
 	}
 
+	bool sol = false; 
+	vec3 intersection_point = ray_origin + ray_direction * t;
+	float height = dot(intersection_point - cyl.center, cyl.axis);
 
-	float b = 2. * dot(ray_origin + ray_direction * t - cyl.center, cyl.axis);
-	//2. * (dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + 2. * t * dot(ray_direction, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) + t * t * dot(ray_direction * ray_direction, cyl.axis * cyl.axis));
-	if (t < MAX_RANGE && abs(b) <= cyl.height && t > 0.) {
-		vec3 intersection_point = ray_origin + ray_direction * t;
-		normal = normalize(intersection_point - cyl.center) / cyl.radius;
-		if (dot(ray_origin - intersection_point, normal) < 0.){
-			normal = - normal;
-		}
-		return true;
+	if (t < MAX_RANGE && abs(2. * height) <= cyl.height && t > 0.) {
+ 		sol = true;
+
 	} else if (num_solutions >= 2){
+
 		if (t == solutions[0]) t = solutions[1];
 		else if (t == solutions[1]) t = solutions[0];
-		b = 2. * dot(ray_origin + ray_direction * t - cyl.center, cyl.axis);
-		if (t < MAX_RANGE && abs(b) <= cyl.height && t > 0.) {
-			vec3 intersection_point = ray_origin + ray_direction * t;
-			normal = normalize(intersection_point - cyl.center) / cyl.radius;
-			if (dot(ray_origin - intersection_point, normal) < 0.){
-				normal = - normal;
-			}
-			return true;
+
+		intersection_point = ray_origin + ray_direction * t;
+		height = dot(intersection_point - cyl.center, cyl.axis);
+
+		if (t < MAX_RANGE && abs(2. * height) <= cyl.height && t > 0.) {
+			sol = true;	
 		}
-		return false;
+
+	} else return false;
+
+	if (sol){
+		normal = normalize(cross(cross(intersection_point-cyl.center,cyl.axis),cyl.axis));
+		if (dot(ray_origin - intersection_point, normal) < 0. ){
+				normal = - normal;
+		}
+		return true;
 	} else return false;
 }
 
