@@ -10,3 +10,8 @@ The tricky part can be considered to be the normal derivation. But actually, we 
 If the ray intersects the plane from the other side of the plane (the not visible one to the viewer), then it will form an angle with the plane normal inferior to 90 degrees, therefore the dot product will be positive. As it needs to reflect back to the other side, we need the normal's sign to be switched. We therefore add an extra minus sign.
 If the ray intersects the plane from the viewer's side, it will form an angle with the plane normal superior to 90 degrees and their dot product will therefore be negative. However we need the light to reflect the same direction as the normal is already. We therefore add an extra minus sign.
 Finally, we use the information on the sign of t to return true if it is visible by the viewer and false otherwise.
+
+- Task RT1.2.1: Derive the expression for a Ray-Cylinder intersection:
+To do this, we first took it back to pen and paper and tried to represent the situation visually. You can find attached 1_2.png to see our representation of the problem. This was loosely based off the method seen in class and we just then derived it mathematically in the Theory Exercises PDF file.
+This task was the most time consuming for us as the maths behind it were tricky and led to many mathematical errors.
+
