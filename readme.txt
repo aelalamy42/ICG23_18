@@ -15,3 +15,13 @@ Finally, we use the information on the sign of t to return true if it is visible
 To do this, we first took it back to pen and paper and tried to represent the situation visually. You can find attached 1_2.png to see our representation of the problem. This was loosely based off the method seen in class and we just then derived it mathematically in the Theory Exercises PDF file.
 This task was the most time consuming for us as the maths behind it were tricky and led to many mathematical errors.
 
+- Task RT1.2.2: Implement Ray-Cylinder intersections:
+To implement this task, we took the same idea as RT1.1. We first consider an infinite height cylinder to simplify the problem.
+The equation we derived before is quadratic, we therefore can take advantage of the solve_quadratic method.
+If there is no solution, then that means that the ray and the cylinder axis are parallel and that they never intersect, we can return false and t = infinity.
+If there's at least 1 solution, we first take the closest one (the smallest t) then we need to see if that solution is within our actual finite height cylinder. We therefore need to check if the height distance between the intersection point and the center of the cylinder is less than half its height.
+If the first soltuion is not within the finite length cylinder, we should not discard the second one, as the ray might be hitting the cylinder from the inside. We therefore need to make the same height distance check with the second solution.
+If both are not within the acceptable height distance, we return false and t = infinity.
+The normal derivation follows the same concept as Task RT1.1.
+
+Group contribution: we all contributed the same amount of work to this homework.
