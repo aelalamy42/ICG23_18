@@ -175,9 +175,16 @@ bool ray_plane_intersection(
 {
 	// can use the plane center if you need it
 	vec3 plane_center = plane_normal * plane_offset;
-	t = MAX_RANGE + 10.;
+	//t = MAX_RANGE + 10.;
 	//normal = ...;
-	return false;
+	if (dot(plane_normal, ray_direction) == 0.0 ) {
+		t = MAX_RANGE + 10.;
+		return false;
+	} else {
+		t = (plane_offset - dot(plane_normal,ray_origin)) / dot(ray_direction, plane_normal);
+		normal = - sign(dot(ray_direction, plane_normal)) * plane_normal;
+		return t > 0.0 ;
+	}
 }
 
 /*
@@ -188,10 +195,60 @@ bool ray_cylinder_intersection(
 		Cylinder cyl,
 		out float t, out vec3 normal) 
 {
-	vec3 intersection_point;
-	t = MAX_RANGE + 10.;
+vec2 solutions; // solutions will be stored here
 
-	return false;
+	int num_solutions = solve_quadratic(
+		// A: 
+		-pow(dot(ray_direction,cyl.axis),2.) + dot(ray_direction,ray_direction),
+		// B: 
+		2. *(dot(ray_direction, ray_origin) -  dot(ray_direction, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)*dot(cyl.axis, ray_direction)),
+		// C: 			
+		dot(ray_origin, ray_origin) - 2. * dot(ray_origin, cyl.center) + dot(cyl.center, cyl.center) - dot(ray_origin - cyl.center, cyl.axis)* dot(ray_origin - cyl.center, cyl.axis) - cyl.radius * cyl.radius,
+		// where to store solutions
+		solutions
+	);
+
+	// result = distance to collision
+	// MAX_RANGE means there is no collision found
+	t = MAX_RANGE+10.;
+
+	if (num_solutions >= 1 && solutions[0] > 0.) {
+		t = solutions[0];
+	}
+	
+	
+	if (num_solutions >= 2 && solutions[1] > 0. && solutions[1] < t) {
+		t = solutions[1];
+	}
+
+	bool sol = false; 
+	vec3 intersection_point = ray_origin + ray_direction * t;
+	float height = dot(intersection_point - cyl.center, cyl.axis);
+
+	if (t < MAX_RANGE && abs(2. * height) <= cyl.height && t > 0.) {
+ 		sol = true;
+
+	} else if (num_solutions >= 2){
+
+		if (t == solutions[0]) t = solutions[1];
+		else if (t == solutions[1]) t = solutions[0];
+
+		intersection_point = ray_origin + ray_direction * t;
+		height = dot(intersection_point - cyl.center, cyl.axis);
+
+		if (t < MAX_RANGE && abs(2. * height) <= cyl.height && t > 0.) {
+			sol = true;	
+		}
+
+	} else return false;
+
+	if (sol){
+		normal = normalize(cross(cross(intersection_point-cyl.center,cyl.axis),cyl.axis));
+		if (dot(ray_origin - intersection_point, normal) < 0. ){
+				normal = - normal;
+		}
+		return true;
+	} else return false;
 }
 
 
@@ -290,6 +347,8 @@ vec3 lighting(
 
 	You can use existing methods for `vec3` objects such as `mirror`, `reflect`, `norm`, `dot`, and `normalize`.
 	*/
+	
+	vec3 diffuse = light.color * (mat.color * mat.diffuse * dot(normalize(object_normal), normalize(light.position - object_point)));
 
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
