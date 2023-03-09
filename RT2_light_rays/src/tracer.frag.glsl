@@ -386,7 +386,7 @@ vec3 lighting(
 	float col_distance;
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
-	if(ray_intersection(object_point + pow(10., -3.) * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
+	if(ray_intersection(object_point + 1e-3 * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
 		global_inensity = vec3(0.);
 	}
 	return global_inensity;
