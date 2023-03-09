@@ -354,34 +354,40 @@ vec3 lighting(
 	} else {
 		diffuse = vec3(0.);
 	}
+	vec3 specular; 
+	vec3 global_inensity;
+
+	#if SHADING_MODE == SHADING_MODE_PHONG
+	
+	vec3 r = reflect(-normalize(light.position - object_point), object_normal);
+	// 2. * object_normal * dot(normalize(object_normal), normalize(light.position - object_point)) - normalize(light.position - object_point);
+	float angle_specular = dot(normalize(r), direction_to_camera); 
+	if (angle_specular >= 0. ) {
+		specular = light.color * (mat.color * mat.specular * pow(angle_specular, mat.shininess));
+	} else {
+		specular = vec3(0.);
+	}
+	global_inensity = diffuse + specular;
+	#endif
+	
+
+	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
+	global_inensity = diffuse;
+
+	#endif
 
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
 	- check whether it intersects an object from the scene
 	- update the lighting accordingly
 	*/
-	vec3 specular; 
-	vec3 global_inensity;
-
-	#if SHADING_MODE == SHADING_MODE_PHONG
-	vec3 r = 2 * object_normal * dot(object_normal, normalize(light.position - object_point)) - normalize(light.position - object_point);
-	float angle_specular = dot(normalize(r), direction_to_camera); 
-	if (angle_specular < 0 ) {
-		specular = light.color * (mat.color * mat.shininess * angle_specular);
-	} else {
-		specular = 0;
+	float col_distance;
+	vec3 col_normal = vec3(0.);
+	int mat_id = 0;
+	if(ray_intersection(object_point + pow(10., -3.) * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
+		global_inensity = vec3(0.);
 	}
-	global_inensity = diffuse + specular; 
 	return global_inensity;
-	#endif
-	
-
-	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
-	global_inensity = diffuse;
-	return global_inensity;
-	#endif
-
-	return mat.color;
 }
 
 /*
