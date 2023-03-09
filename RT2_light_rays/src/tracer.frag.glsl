@@ -347,20 +347,38 @@ vec3 lighting(
 
 	You can use existing methods for `vec3` objects such as `mirror`, `reflect`, `norm`, `dot`, and `normalize`.
 	*/
-	
-	vec3 diffuse = light.color * (mat.color * mat.diffuse * dot(normalize(object_normal), normalize(light.position - object_point)));
+	vec3 diffuse;
+	float angle_diffuse = dot(normalize(object_normal), normalize(light.position - object_point));
+	if ( angle_diffuse >= 0 ){
+		diffuse = light.color * (mat.color * mat.diffuse * angle_diffuse);
+	} else {
+		diffuse = 0;
+	}
 
 	/** #TODO RT2.2: 
 	- shoot a shadow ray from the intersection point to the light
 	- check whether it intersects an object from the scene
 	- update the lighting accordingly
 	*/
-
+	vec3 specular; 
+	vec3 global_inensity;
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
+	vec3 r = 2 * object_normal * dot(object_normal, normalize(light.position - object_point)) - normalize(light.position - object_point);
+	float angle_specular = dot(normalize(r), direction_to_camera); 
+	if (angle_specular < 0 ) {
+		specular = light.color * (mat.color * mat.shininess * angle_specular);
+	} else {
+		specular = 0;
+	}
+	global_inensity = diffuse + specular; 
+	return global_inensity;
 	#endif
+	
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
+	global_inensity = diffuse;
+	return global_inensity;
 	#endif
 
 	return mat.color;
