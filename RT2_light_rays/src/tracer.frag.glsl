@@ -364,12 +364,12 @@ vec3 lighting(
 	vec3 global_inensity;
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
-	vec3 r = 2 * object_normal * dot(object_normal, normalize(light.position - object_point)) - normalize(light.position - object_point);
+	vec3 r = 2. * object_normal * dot(object_normal, normalize(light.position - object_point)) - normalize(light.position - object_point);
 	float angle_specular = dot(normalize(r), direction_to_camera); 
-	if (angle_specular < 0 ) {
-		specular = light.color * (mat.color * mat.shininess * angle_specular);
+	if (angle_specular >= 0. ) {
+		specular = light.color * (mat.color * mat.specular * pow(angle_specular, mat.shininess));
 	} else {
-		specular = 0;
+		specular = vec3(0.);
 	}
 	global_inensity = diffuse + specular; 
 	return global_inensity;
@@ -377,7 +377,9 @@ vec3 lighting(
 	
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
-	global_inensity = diffuse;
+	vec3 halfway_vect = normalize(light.position - object_point + direction_to_camera);
+	specular = light.color * (mat.color * mat.specular * pow(dot(object_normal, halfway_vect), mat.shininess));
+	global_inensity = diffuse + specular;
 	return global_inensity;
 	#endif
 
