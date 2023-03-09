@@ -372,7 +372,9 @@ vec3 lighting(
 	
 
 	#if SHADING_MODE == SHADING_MODE_BLINN_PHONG
-	global_inensity = diffuse;
+	vec3 halfway_vect = normalize(light.position - object_point + direction_to_camera);
+	specular = light.color * (mat.color * mat.specular * pow(dot(object_normal, halfway_vect), mat.shininess));
+	global_inensity = diffuse + specular;
 
 	#endif
 
