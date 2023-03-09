@@ -349,10 +349,10 @@ vec3 lighting(
 	*/
 	vec3 diffuse;
 	float angle_diffuse = dot(normalize(object_normal), normalize(light.position - object_point));
-	if ( angle_diffuse >= 0 ){
+	if ( angle_diffuse >= 0. ){
 		diffuse = light.color * (mat.color * mat.diffuse * angle_diffuse);
 	} else {
-		diffuse = 0;
+		diffuse = vec3(0.);
 	}
 
 	/** #TODO RT2.2: 
@@ -420,22 +420,23 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 		reflection_weight = ...;
 	}
 	*/
-
 	vec3 pix_color = vec3(0.);
-
 	float col_distance;
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
 	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
 		Material m = get_material(mat_id);
 		pix_color = m.color;
+		vec3 material_ambient = m.color * m.ambient;
+        vec3 intensity = vec3(0.);
 
 		#if NUM_LIGHTS != 0
-		// for(int i_light = 0; i_light < NUM_LIGHTS; i_light++) {
-		// // do something for each light lights[i_light]
-		// }
+		for(int i=0; i< NUM_LIGHTS; i++){
+            intensity += lighting(ray_origin + col_distance * ray_direction, col_normal, - ray_direction, lights[i], m);
+        }
 		#endif
-	}
+		return intensity + light_color_ambient * material_ambient;
+  }
 
 	return pix_color;
 }
