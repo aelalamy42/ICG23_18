@@ -386,8 +386,10 @@ vec3 lighting(
 	float col_distance;
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
-	if(ray_intersection(object_point + 1e-3 * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
+	if(ray_intersection(object_point + 1e-2 * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
+		if(col_distance < sqrt(dot(light.position - object_point, light.position - object_point))){
 		global_inensity = vec3(0.);
+		}
 	}
 	return global_inensity;
 }
@@ -403,7 +405,28 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 	- compute the intensity contribution from each light in the scene and store the sum in pix_color
 	*/
 
-	/** #TODO RT2.3.2: 
+	vec3 pix_color = vec3(0.);
+	float col_distance;
+	vec3 col_normal = vec3(0.);
+	int mat_id = 0;
+	
+	vec3 material_ambient = m.color * m.ambient;
+	for(int i = 0; i < NUM_REFLECTIONS+1; i++) {
+
+	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+		Material m = get_material(mat_id);
+		pix_color = m.color;
+        vec3 intensity = vec3(0.);
+
+		#if NUM_LIGHTS != 0
+		for(int i=0; i< NUM_LIGHTS; i++){
+            intensity += lighting(ray_origin + col_distance * ray_direction, col_normal, - ray_direction, lights[i], m);
+        }
+		#endif
+		return intensity + light_color_ambient * material_ambient;
+    }
+	}
+  /** #TODO RT2.3.2: 
 	- create an outer loop on the number of reflections (see below for a suggested structure)
 	- compute lighting with the current ray (might be reflected)
 	- use the above formula for blending the current pixel color with the reflected one
@@ -428,23 +451,6 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 		reflection_weight = ...;
 	}
 	*/
-	vec3 pix_color = vec3(0.);
-	float col_distance;
-	vec3 col_normal = vec3(0.);
-	int mat_id = 0;
-	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-		Material m = get_material(mat_id);
-		pix_color = m.color;
-		vec3 material_ambient = m.color * m.ambient;
-        vec3 intensity = vec3(0.);
-
-		#if NUM_LIGHTS != 0
-		for(int i=0; i< NUM_LIGHTS; i++){
-            intensity += lighting(ray_origin + col_distance * ray_direction, col_normal, - ray_direction, lights[i], m);
-        }
-		#endif
-		return intensity + light_color_ambient * material_ambient;
-  }
 
 	return pix_color;
 }
