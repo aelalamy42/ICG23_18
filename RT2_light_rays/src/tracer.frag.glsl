@@ -431,32 +431,6 @@ vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
 		
     }
 	}
-  /** #TODO RT2.3.2: 
-	- create an outer loop on the number of reflections (see below for a suggested structure)
-	- compute lighting with the current ray (might be reflected)
-	- use the above formula for blending the current pixel color with the reflected one
-	- update ray origin and direction
-
-	We suggest you structure your code in the following way:
-
-	vec3 pix_color          = vec3(0.);
-	float reflection_weight = ...;
-
-	for(int i_reflection = 0; i_reflection < NUM_REFLECTIONS+1; i_reflection++) {
-		float col_distance;
-		vec3 col_normal = vec3(0.);
-		int mat_id      = 0;
-
-		...
-
-		Material m = get_material(mat_id); // get material of the intersected object
-
-		ray_origin        = ...;
-		ray_direction     = ...;
-		reflection_weight = ...;
-	}
-	*/
-
 	return pix_color;
 }
 
