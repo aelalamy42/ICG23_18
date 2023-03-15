@@ -337,11 +337,14 @@ bool ray_intersection(
 vec3 lighting(
 		vec3 object_point, vec3 object_normal, vec3 direction_to_camera, 
 		Light light, Material mat) {
+
+	// Computing diffuse component 
 	float col_distance;
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
 	if(ray_intersection(object_point + 1e-2 * normalize(light.position - object_point), normalize(light.position - object_point), col_distance, col_normal, mat_id)) {
-		if(col_distance < sqrt(dot(light.position - object_point, light.position - object_point))){ // Make sure the distance to intersection is smaller then light, otherwise there is no shadow.
+		if(col_distance < sqrt(dot(light.position - object_point, light.position - object_point))){ 
+			// Make sure the distance to intersection is smaller then light, otherwise there is no shadow.
 			return vec3(0.);
 		}
 	}
@@ -352,6 +355,7 @@ vec3 lighting(
 		diffuse = light.color * (mat.color * mat.diffuse * angle_diffuse);
 	} 
 
+	// Computing specular component 
 	vec3 specular = vec3(0.);
 
 	#if SHADING_MODE == SHADING_MODE_PHONG
@@ -372,41 +376,42 @@ vec3 lighting(
 }
 
 /*
-Render the light in the scene using ray-tracing!
+	Render the light in the scene using ray-tracing!
 */
 vec3 render_light(vec3 ray_origin, vec3 ray_direction) {
-
-	/** #TODO RT2.1: 
-	- check whether the ray intersects an object in the scene
-	- if it does, compute the ambient contribution to the total intensity
-	- compute the intensity contribution from each light in the scene and store the sum in pix_color
-	*/
 
 	vec3 pix_color = vec3(0.);
 	float col_distance;
 	vec3 col_normal = vec3(0.);
 	int mat_id = 0;
 	float reflection_weight = 1.;
+
+
 	for(int i = 0; i < NUM_REFLECTIONS+1; i++) {
 
-	if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
-		Material m = get_material(mat_id);
-		vec3 material_ambient = m.color * m.ambient;
-        vec3 intensity = vec3(0.);
-		vec3 object_point = ray_origin + col_distance * ray_direction;
+		if(ray_intersection(ray_origin, ray_direction, col_distance, col_normal, mat_id)) {
+			Material m = get_material(mat_id);
+			vec3 material_ambient = m.color * m.ambient;
+        	vec3 intensity = vec3(0.);
+			vec3 object_point = ray_origin + col_distance * ray_direction;
 
-		#if NUM_LIGHTS != 0
-		for(int i=0; i< NUM_LIGHTS; i++){
-            intensity += lighting(object_point, col_normal, - ray_direction, lights[i], m);
-        }
-		#endif
-		pix_color += (1. - m.mirror) * reflection_weight * (intensity + light_color_ambient * material_ambient);
+			#if NUM_LIGHTS != 0
+			for(int i=0; i< NUM_LIGHTS; i++){
+        	    intensity += lighting(object_point, col_normal, - ray_direction, lights[i], m);
+        	}
+			#endif
+
+			if (NUM_REFLECTIONS == 0){
+				pix_color += intensity + light_color_ambient * material_ambient;
+			} else {
+				pix_color += (1. - m.mirror) * reflection_weight * (intensity + light_color_ambient * material_ambient);
+			}
+			reflection_weight *= m.mirror;
+			
+			ray_origin = object_point + 1e-2 * (-ray_direction);
+			ray_direction = reflect(ray_direction, col_normal);
 		
-		reflection_weight *= m.mirror;
-		ray_origin = object_point + 1e-2 * (-ray_direction);
-		ray_direction = reflect(ray_direction, col_normal);
-		
-    }
+    	}
 	}
 	return pix_color;
 }
