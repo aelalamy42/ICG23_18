@@ -30,7 +30,7 @@ First, we have to make the planet rotate around itself. To do so we make it rota
 Then, we have to make it to scale. Again, as we are still at the origin, this is just a scaling by the size value on every axis.
 Note that these two are interchangeable as they preserve the origin.
 Finally, now we can prepare the planet's orbit. To do so, we first have to suppose it's orbiting around the origin, which is done by first translating it onto the x axis by its orbit radius, then making it rotate around the Z axis using its orbit speed and phase. Now that the orbit is prepared we can just translate the whole thing around the center of the parent planet. This is done by recovering the translation that the parent was exposed to and then applying the same one to the origin of the current child so that the origin of the defined orbit is the center of the parent.
-Note also that the orbit needs to be done only if we have a parent planet, otherwise we just 
+Note also that the orbit needs to be considered only if we have a parent planet, otherwise we just scale and make the planet spin on itself.
 
 Group contribution:
 Alexandra Lagutova (324449): 1/2
