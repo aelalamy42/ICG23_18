@@ -20,6 +20,7 @@ This matrix has as it's second parameter the camera position [-r, 0, 0] since th
 will be in the negatives. 
 The third parameter is the view position point and it will be equal to [0, 0, 0] since it always looks at the origin point. 
 The last parameter is the up vector equal to [0, 0, 1] because our camera is z axis oriented. 
+--
 
 - Task GL1.2.3: Model matrix
 
