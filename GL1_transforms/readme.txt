@@ -9,6 +9,7 @@ Then, we called the draw_triangle_with_offset shaders with the according mouse_o
 - Task GL1.1.2: 2D matrix transform
 
 - Task GL1.2.1: MVP matrix
+We literally did things the same way as in the last task as hinted by the data. Then for the second part, as we know that doing the MVP matrix is equivalent to doing the three step by step matrices and as we are provided with said matrices, we just had to multiply them together in the appropriate order.
 - Task GL1.2.2: View matrix
 - Task GL1.2.3: Model matrix
 
