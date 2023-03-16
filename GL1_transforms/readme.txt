@@ -7,23 +7,22 @@ For this task we basically followed what was said. First we added the vector con
 Then, we called the draw_triangle_with_offset shaders with the according mouse_offset and the color_blue.
 
 - Task GL1.1.2: 2D matrix transform
-For this task we created translation and rotation matrixes which we combined. 
+For this task we created translation and rotation matrices which we combined. 
 For the red triangle, it's supposed to turn around itself, so we first make it to rotate around the Z axis, 
-to make it rotate around itself and then translate it, like this it still rotates around itself.
-For the green triangle, we first translate it and then we rotate it around the axis, making it turning around the blue triangle.
+so that it rotates around itself and then translate it.
+For the green triangle, we first translate it and then we rotate it around the Z axis, making it turning around the blue triangle.
 Finally, we put our transformations into the mat_transform variable for the corresponding triangles. 
 
 - Task GL1.2.1: MVP matrix
 We literally did things the same way as in the last task as hinted by the data. Then for the second part, as we know that doing the MVP matrix is equivalent to doing the three step by step matrices and as we are provided with said matrices, we just had to multiply them together in the appropriate order.
+
 - Task GL1.2.2: View matrix
 For the construction of our view matrix, we started by defining our rotations. 
 To have the position of our camera, we first rotated our x axis around the z axis by cam_angle_z. 
 Then we rotated it the y axis by cam_angle_y. Finally, we multiplied by our camera matrix look_at.
-This matrix has as it's second parameter the camera position [-r, 0, 0] since the distance on the x axis from the origin to the camera 
-will be in the negatives. 
+This matrix has as its second parameter the camera position [-r, 0, 0]. We use a negative r so that our camera is put back to a distance of r. Putting it with a positive r will advance the camera and make it look outside instead of looking at the planet.
 The third parameter is the view position point and it will be equal to [0, 0, 0] since it always looks at the origin point. 
 The last parameter is the up vector equal to [0, 0, 1] because our camera is z axis oriented. 
---
 
 - Task GL1.2.3: Model matrix
 For the model matrix, the computation consisted in three steps:
