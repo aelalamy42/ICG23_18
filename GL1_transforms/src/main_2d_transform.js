@@ -210,8 +210,6 @@ async function main() {
 		const rotateThenTranslate = mat4.multiply(mat4.create(), translation, rotation);
 		const translateThenRotate = mat4.multiply(mat4.create(), rotation, translation);
 
-		console.log(mat4_to_string(translateThenRotate));
-
 		draw_triangle_with_transform({
 			mat_transform: translateThenRotate,
 			color: color_green,
