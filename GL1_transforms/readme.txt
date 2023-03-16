@@ -23,3 +23,7 @@ The last parameter is the up vector equal to [0, 0, 1] because our camera is z a
 
 - Task GL1.2.3: Model matrix
 
+Group contribution:
+Alexandra Lagutova (324449): 1/2
+Ahmed Elalamy (324610): 1/2
+
