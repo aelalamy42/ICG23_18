@@ -209,6 +209,7 @@ class SysRenderMeshes {
 				Calculate mat_normals_to_view to be equal to 
 					inverse(transpose( mat model * mat view))
 			*/
+			mat4_matmul_many(mat_mvp, mat_projection, mat_view, actor.mat_model_to_world);
 			//mat4_matmul_many(mat_model_view, ...)
 			//mat4_matmul_many(mat_mvp, ...)
 			// calculate mat_normals_to_view 
