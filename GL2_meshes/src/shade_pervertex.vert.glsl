@@ -31,8 +31,8 @@ void main() {
 	Hint: Write the final vertex position to gl_Position
 	*/
 	vec3 normal_view = normalize(mat_normals_to_view * vertex_normal);
-	vec3 vertex_view = normalize(mat_model_view * vec4(vertex_position, 1)).xyz;
-	vec3 halfway_vect = normalize(normalize(light_position - vertex_view) - vertex_view);
+	vec3 vertex_view = (mat_model_view * vec4(vertex_position, 1)).xyz;
+	vec3 halfway_vect = normalize(light_position - 2.*vertex_view);
 
 	vertex_to_fragment = material_ambient * light_color + light_color * material_color * dot(normal_view, normalize(light_position - vertex_view)) + light_color * material_color * pow(dot(halfway_vect, normal_view), material_shininess);
 	gl_Position = mat_mvp * vec4(vertex_position, 1);
