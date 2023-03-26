@@ -57,8 +57,6 @@ function compute_vertex_normals(mesh, tri_normals, angle_weights) {
 
 		const normal = tri_normals[i_face]
 
-		// Add your code for adding the contribution of the current triangle to its vertices' normals
-
 		const w1 = angle_weights[i_face][0]
 		const w2 = angle_weights[i_face][1]
 		const w3 = angle_weights[i_face][2]

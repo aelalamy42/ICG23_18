@@ -1,0 +1,18 @@
+ICG GL2 - Meshes in the GPU pipeline
+Group 18: Ahmed Elalamy, Alexandra Lagutova
+
+Task GL2.1.1: Compute triangle normals and opening angles
+
+For this first task, we went through all of the faces of our triangles, we computed the normal vector to each triangle in the mesh, by at first taking the cross product between the lines p(Vi2) - p(Vi1) and  p(Vi3) - p(Vi1), which we deduced by using the right hand rule. We are going to push the result into the array tri_normals. 
+Then we compute the weights for each vert of a triagle, by substucting one by one the crossing between the two lines and then computing the angle between them. For example for the weight of the vertex 2, we computed the angle between p(Vi3) - p(Vi2) and p(Vi1) - p(Vi2). Then we store the result in angle_weights. 
+
+Task GL2.1.2: Compute vertex normals
+
+For this task, we use the formula given to us in the handout.
+We go through all the triangles in the mesh and it's faces and compute the contribution of each weight to the vertex normals, by adding the contribution to the vertex_normal at it's corresponding vertex index. One important thing for this computation is to normalize the contribution before adding it, by using the function scale on the weight with the normal.
+
+Task GL2.2.1: Pass normals to fragment shader
+
+To start this task, we added the line 213 to the mesh_render.js which does the computation of the model-view-projection matrix mat_mvp that we did last week.
+Then we created varying variables vertex_to_fragment in the vertex and fragment shader files. In the vertex shader we assigned this value to the normal of mat_normals_to_view * vertex_normal. 
+In the normals shader we used this varying value to compute the color with the formula given to us in the handout. 
