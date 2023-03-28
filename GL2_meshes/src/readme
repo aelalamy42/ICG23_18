@@ -14,5 +14,21 @@ We go through all the triangles in the mesh and it's faces and compute the contr
 Task GL2.2.1: Pass normals to fragment shader
 
 To start this task, we added the line 213 to the mesh_render.js which does the computation of the model-view-projection matrix mat_mvp that we did last week.
-Then we created varying variables vertex_to_fragment in the vertex and fragment shader files. In the vertex shader we assigned this value to the normal of mat_normals_to_view * vertex_normal. 
+Then we created varying variables vertex_to_fragment in the vertex and fragment shader files. In the vertex shader we assigned this value to the normal of mat_normals_to_view * vertex_normal. We need to normalize, because a scaling could have been done wrong and invalid. 
 In the normals shader we used this varying value to compute the color with the formula given to us in the handout. 
+
+Task GL2.2.2: Transforming the normals
+
+In this task, we calculated mat_model_view, and mat_normals_to_view, since we have already computed mat_mvp in the previous task. For mat_model_view, we at just did the multiplication of mat model and mat view, since it puts the model in the coordinates corresponding to the view.
+Then we used the formula given to us, so we transformed mat4 into mat3 and did the transpose and the inversion.
+Now to transform the normals to camera space, we multiplied mat_mvp by our vertex_position (which we had to transform to vec4 for the matrix multiplication to be correct)
+
+Task GL2.3: Gouraud lighting
+
+For the Gouraud lighting, we used the formula given to us in shade_pervertex.vert.js. We used material_color as the a material for every component (except ambient for which we used material_color * material_ambient as suggested). We also needed to compute the halway vecor foe this formula which we did by normalizing the position of the light (in camera space coordinates) - two times the vertex view. (to explain more ?)
+Then we used this value in shade_pervertex.frag.js and displayed the color
+
+
+Task GL2.4: Phong lighting
+
+For the Phong lighting, we used the formula given to us in the handout. We used the same values as before for the materials. We computed the normal vector by taking the lighting vector - the view vector. And we substitued all the other values in the formula. 
