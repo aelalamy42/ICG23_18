@@ -95,6 +95,7 @@ class SysRenderMeshes {
 		mat3.fromMat4(mat_normals_to_view, mat_model_view)
 		mat3.transpose(mat_normals_to_view, mat_normals_to_view)
 		mat3.invert(mat_normals_to_view, mat_normals_to_view)
+
 		return {mat_model_view, mat_mvp, mat_normals_to_view}
 	}
 

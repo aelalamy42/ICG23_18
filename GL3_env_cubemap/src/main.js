@@ -166,7 +166,6 @@ async function main() {
 		/* TODO GL3.0
 		Copy turntable camera from GL2
 		*/
-
 		const r = cam_distance_base * cam_distance_factor;
 
 		// Example camera matrix, looking along forward-X, edit this
