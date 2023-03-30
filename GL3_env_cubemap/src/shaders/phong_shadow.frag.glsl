@@ -1,8 +1,8 @@
 precision highp float;
 
 /* #TODO GL3.3.1: Pass on the normals and fragment position in camera coordinates */
-//varying ...
-//varying ...
+varying vec3 v2f_normal;
+varying vec4 v2f_vertex_position;
 varying vec2 v2f_uv;
 
 
@@ -14,11 +14,10 @@ uniform sampler2D tex_color;
 void main() {
 
 	float material_shininess = 12.;
-
 	/* #TODO GL3.1.1
 	Sample texture tex_color at UV coordinates and display the resulting color.
 	*/
-	vec3 material_color = vec3(v2f_uv, 0.);
+	vec3 material_color = texture2D(tex_color, v2f_uv).xyz;
 	
 	/*
 	#TODO GL3.3.1: Blinn-Phong with shadows and attenuation
@@ -49,6 +48,17 @@ void main() {
 
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
-	vec3 color = light_color * material_color;
+	vec3 color = vec3(0.);
+	vec3 direction_to_light = normalize(light_position - v2f_vertex_position.xyz);
+	vec3 halfway_vect = normalize(direction_to_light - v2f_vertex_position.xyz);
+
+	float shadowDistance = textureCube(cube_shadowmap, - direction_to_light).r;
+	
+	if(length(light_position - v2f_vertex_position.xyz) < 1.01 * shadowDistance){
+		color += light_color * material_color * dot(v2f_normal, direction_to_light);
+		color += light_color * material_color * pow(dot(halfway_vect, v2f_normal), material_shininess);
+	}
+	color = color / pow(length(light_position - v2f_vertex_position.xyz), 2.);
+	
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
