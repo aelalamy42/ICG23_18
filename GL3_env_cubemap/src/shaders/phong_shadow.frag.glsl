@@ -55,7 +55,7 @@ void main() {
 
 	float shadowDistance = textureCube(cube_shadowmap, - direction_to_light).r;
 	
-	if(length(distance_to_light) <= 1.01 * shadowDistance){
+	if(length(distance_to_light) <= 1.05 * shadowDistance){
 		color += light_color * material_color * dot(v2f_normal, direction_to_light);
 		color += light_color * material_color * pow(dot(halfway_vect, v2f_normal), material_shininess);
 	}
