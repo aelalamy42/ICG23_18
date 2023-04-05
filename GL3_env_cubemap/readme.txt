@@ -13,9 +13,18 @@ For this task, our train of thought was that, if by sampling from [0 , 0] to [1,
 
 Task GL3.2.1: Projection matrix for a cube camera
 
+In this task, we constructed the camera projection matrix which has a correct light camera's view frustum. For this we used the function perspective.
+For its parameters, we used given to us minimum and maximum distances and for other parameters like aspect ratio, we had to find them.
+The aspect ratio is going to be 1, since all of our canvas are squares. The fovy attribute is going to be equal to pi/2 since the camera is in the middle of the square.
+
 Task GL3.2.2: Up vectors for cube camera
 
+In this task we modified the up vectors for each cube side camera. 
+
 Task GL3.2.3: Reflection shader
+
+For this task, we needed to compute the miror shader by calculating the reflected ray by normsalizing the reflect of xyz coordinates and the vector to fragment.
+To obtain the color, we use the function texturecube that was given to us in the handout. It will sample using the refleted vector we have computed before. We are going to take x, y, z coordinates from it and output the resulting color.
 
 Task GL3.3.1: Phong Lighting Shader with Shadows
 
@@ -27,6 +36,7 @@ Finally, the last part we needed to work on was the light attenuation. We comput
 
 Task GL3.3.2 Blend Options
 
+For this task, we used the blend function using default parameters : src: 'one' and dst: 'one'.
 
 Group contribution:
 Alexandra Lagutova (324449): 1/2
