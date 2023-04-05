@@ -49,16 +49,17 @@ void main() {
 	Make sure to normalize values which may have been affected by interpolation!
 	*/
 	vec3 color = vec3(0.);
-	vec3 direction_to_light = normalize(light_position - v2f_vertex_position.xyz);
-	vec3 halfway_vect = normalize(direction_to_light - v2f_vertex_position.xyz);
+	vec3 distance_to_light = light_position - v2f_vertex_position.xyz;
+	vec3 direction_to_light = normalize(distance_to_light);
+	vec3 halfway_vect = normalize(direction_to_light - normalize(v2f_vertex_position.xyz));
 
 	float shadowDistance = textureCube(cube_shadowmap, - direction_to_light).r;
 	
-	if(length(light_position - v2f_vertex_position.xyz) < 1.01 * shadowDistance){
+	if(length(distance_to_light) <= 1.01 * shadowDistance){
 		color += light_color * material_color * dot(v2f_normal, direction_to_light);
 		color += light_color * material_color * pow(dot(halfway_vect, v2f_normal), material_shininess);
 	}
-	color = color / pow(length(light_position - v2f_vertex_position.xyz), 2.);
+	color = color / pow(length(distance_to_light), 2.);
 	
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
