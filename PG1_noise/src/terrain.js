@@ -81,7 +81,6 @@ function terrain_build_mesh(height_map) {
 			Triangulate the grid cell whose lower lefthand corner is grid index (gx, gy).
 			You will need to create two triangles to fill each square.
 			*/
-
 			faces.push([xy_to_v_index(gx, gy), xy_to_v_index(gx + 1, gy), xy_to_v_index(gx, gy + 1)]) // adds a triangle on vertex indices v1, v2, v3
 			faces.push([xy_to_v_index(gx + 1, gy), xy_to_v_index(gx + 1, gy + 1), xy_to_v_index(gx, gy + 1)])
 		}

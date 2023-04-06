@@ -33,6 +33,13 @@ void main()
 	*/
 	vec3 material_color = terrain_color_grass;
 	float shininess = 0.5;
+	if(v2f_height < terrain_water_level){
+		material_color = terrain_color_water;
+		shininess = 30.;
+	} else {
+		material_color = mix(terrain_color_grass, terrain_color_mountain, (height - terrain_water_level)*2.);
+		shininess = 2.;
+	}
 
 	/* #TODO PG1.6.1: apply the Blinn-Phong lighting model
     	Implement the Phong shading model by using the passed variables and write the resulting color to `color`.
