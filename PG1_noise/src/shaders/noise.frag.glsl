@@ -146,7 +146,30 @@ float perlin_noise(vec2 point) {
 	Implement 2D perlin noise as described in the handout.
 	You may find a glsl `for` loop useful here, but it's not necessary.
 	*/
-	return 0.;
+	vec2 c00 = floor(point);
+	vec2 c10 = c00 + vec2(1, 0);
+	vec2 c01 = c00 + vec2(0, 1);
+	vec2 c11 = c00 + vec2(1, 1);
+
+	vec2 g00 = gradients(hash_func(c00));
+	vec2 g10 = gradients(hash_func(c10));
+	vec2 g01 = gradients(hash_func(c01));
+	vec2 g11 = gradients(hash_func(c11));
+
+	vec2 a = point - c00;
+	vec2 b = point - c10;
+	vec2 c = point - c01;
+	vec2 d = point - c11;
+	
+	float s = dot(g00, a);
+	float t = dot(g10, b);
+	float u = dot(g01, c);
+	float v = dot(g11, d);
+
+	float st = mix(s, t, blending_weight_poly(point.x - c00.x));
+	float uv = mix(u, v, blending_weight_poly(point.x - c00.x));
+	float result = mix(st, uv, blending_weight_poly(point.y - c00.y));
+	return result;
 }
 
 vec3 tex_perlin(vec2 point) {
@@ -164,7 +187,11 @@ float perlin_fbm(vec2 point) {
 	Implement 2D fBm as described in the handout. Like in the 1D case, you
 	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
 	*/
-	return 0.;
+	float res = 0.;
+	for(int i = 0; i < num_octaves; i++) {
+		res += pow(ampl_multiplier, float(i)) * perlin_noise(point * pow(freq_multiplier, float(i)));
+	}
+	return res;
 }
 
 vec3 tex_fbm(vec2 point) {
@@ -188,7 +215,11 @@ float turbulence(vec2 point) {
 	Implement the 2D turbulence function as described in the handout.
 	Again, you should use num_octaves, freq_multiplier, and ampl_multiplier.
 	*/
-	return 0.;
+	float res = 0.;
+	for(int i = 0; i < num_octaves; i++) {
+		res += pow(ampl_multiplier, float(i)) * abs(perlin_noise(point * pow(freq_multiplier, float(i))));
+	}
+	return res;
 }
 
 vec3 tex_turbulence(vec2 point) {
@@ -210,7 +241,13 @@ vec3 tex_map(vec2 point) {
 	Implement your map texture evaluation routine as described in the handout. 
 	You will need to use your perlin_fbm routine and the terrain color constants described above.
 	*/
-	return vec3(0.);
+	float s = perlin_fbm(point);
+	if (s < terrain_water_level){
+		return terrain_color_water;
+	}
+	float s_water = perlin_fbm_1d(terrain_water_level);
+	vec3 res = mix(terrain_color_grass, terrain_color_mountain, s - terrain_water_level);
+	return res;
 }
 
 // ==============================================================
@@ -224,7 +261,7 @@ vec3 tex_wood(vec2 point) {
 	Implement your wood texture evaluation routine as described in thE handout. 
 	You will need to use your 2d turbulence routine and the wood color constants described above.
 	*/
-	return vec3(0.);
+	return mix(brown_dark, brown_light, 0.5*(1. + sin(100. * (length(point)+ 0.15*turbulence(point)))));
 }
 
 
@@ -238,7 +275,9 @@ vec3 tex_marble(vec2 point) {
 	Implement your marble texture evaluation routine as described in the handout.
 	You will need to use your 2d fbm routine and the marble color constants described above.
 	*/
-	return vec3(0.);
+	vec2 q = vec2(perlin_fbm(point), perlin_fbm(point + vec2(1.7, 4.6)));
+	float a = 0.5 * (1. + perlin_fbm(point + 4. * q));
+	return mix(white, brown_dark, a);
 }
 
 
