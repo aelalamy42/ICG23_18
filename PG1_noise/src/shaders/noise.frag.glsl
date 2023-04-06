@@ -64,7 +64,20 @@ float perlin_noise_1d(float x) {
 	and interpolate these values 
 	using the smooth interolation polygnomial blending_weight_poly.
 	*/
-	return 0.;
+
+	// Compute corners with floor
+	int c0 = int(floor(x));
+	int c1 = c0 + 1;
+	// take gradients at corners using a grid point (use y = 0 as in figure)
+	float g0 = gradients(hash_func(vec2(float(c0), 0.))).x;
+	float g1 = gradients(hash_func(vec2(float(c1), 0.))).x;
+	// compute contribution of each corner 
+	float phi_0 = g0 * (x - float(c0));
+	float phi_1 = g1 * (x - float(c1)); 
+	// use mix and blending weight to have interpolation
+	float result = mix(phi_0, phi_1, blending_weight_poly(x - float(c0)));
+	// return value 
+	return result;
 }
 
 float perlin_fbm_1d(float x) {
@@ -76,7 +89,11 @@ float perlin_fbm_1d(float x) {
 	
 	Note: the GLSL `for` loop may be useful.
 	*/
-	return 0.;
+	float res = 0.;
+	for(int i = 0; i < num_octaves; i++) {
+		res += pow(ampl_multiplier, float(i)) * perlin_noise_1d(x * pow(freq_multiplier, float(i)));
+	}
+	return res;
 }
 
 // ----- plotting -----
