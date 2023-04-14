@@ -3,9 +3,9 @@ precision highp float;
 varying float v2f_height;
 
 /* #TODO PG1.6.1: Copy Blinn-Phong shader setup from previous exercises */
-//varying ...
-//varying ...
-//varying ...
+varying vec3 v2f_normal;
+varying vec3 v2f_light_pos;
+varying vec3 v2f_vert_pos;
 
 
 const vec3  light_color = vec3(1.0, 0.941, 0.898);
@@ -31,7 +31,7 @@ void main()
 			color = interpolate between terrain_color_grass and terrain_color_mountain, weight is (height - terrain_water_level)*2
 	 		shininess = 2.
 	*/
-	vec3 material_color = terrain_color_grass;
+	vec3 material_color = vec3(0.);
 	float shininess = 0.5;
 	if(v2f_height < terrain_water_level){
 		material_color = terrain_color_water;
@@ -46,6 +46,18 @@ void main()
     	`material_color` should be used as material parameter for ambient, diffuse and specular lighting.
     	Hints:
 	*/
-	vec3 color = material_color * light_color;
+	vec3 dir_to_light = normalize(v2f_light_pos - v2f_vert_pos);
+	vec3 dir_to_view = normalize(- v2f_vert_pos);
+	vec3 halfway_vect = normalize(dir_to_light + dir_to_view);
+
+
+	vec3 color = ambient * light_color *material_color;
+	if(dot(v2f_normal, dir_to_light) > 0.){
+		color += light_color * material_color * dot(v2f_normal, dir_to_light);
+		if(dot(v2f_normal, halfway_vect) > 0.){
+			color += light_color * material_color * pow(dot(halfway_vect, v2f_normal), shininess);
+		}
+	}
+	color = v2f_normal * 0.5 + vec3(0.5);
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
