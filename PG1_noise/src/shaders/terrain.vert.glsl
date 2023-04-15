@@ -29,7 +29,7 @@ void main()
 	// Setup Blinn-Phong varying variables
 	//v2f_normal = normal; // TODO apply normal transformation
 	v2f_vert_pos = (mat_model_view * position_v4).xyz;
-	v2f_light_pos = (mat_model_view * light_position).xyz;
+	v2f_light_pos = (light_position).xyz;
 	v2f_normal = normalize(mat_normals * normal);
 	
 	gl_Position = mat_mvp * position_v4;

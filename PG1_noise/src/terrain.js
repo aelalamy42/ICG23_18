@@ -70,7 +70,7 @@ function terrain_build_mesh(height_map) {
 			if (elevation < WATER_LEVEL){
 				normals[idx] = [0, 0, 1]
 				vertices[idx] = [gx/grid_width - 0.5, gy/grid_height - 0.5, WATER_LEVEL]
-			}
+			} 
 			
 		}
 	}

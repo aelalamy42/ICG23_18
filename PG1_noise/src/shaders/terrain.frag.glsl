@@ -49,15 +49,16 @@ void main()
 	vec3 dir_to_light = normalize(v2f_light_pos - v2f_vert_pos);
 	vec3 dir_to_view = normalize(- v2f_vert_pos);
 	vec3 halfway_vect = normalize(dir_to_light + dir_to_view);
+	vec3 normal = normalize(v2f_normal);
 
 
-	vec3 color = ambient * light_color *material_color;
-	if(dot(v2f_normal, dir_to_light) > 0.){
-		color += light_color * material_color * dot(v2f_normal, dir_to_light);
-		if(dot(v2f_normal, halfway_vect) > 0.){
-			color += light_color * material_color * pow(dot(halfway_vect, v2f_normal), shininess);
+	vec3 color = vec3(0., 0., 0.);
+	if(dot(normal, dir_to_light) > 0.){
+		color += light_color * material_color * ambient;
+		if(dot(normal, halfway_vect) > 0.){
+			color += light_color * material_color * (dot(normal, dir_to_light) + pow(dot(halfway_vect, normal), shininess));
 		}
 	}
-	color = v2f_normal * 0.5 + vec3(0.5);
+	
 	gl_FragColor = vec4(color, 1.); // output: RGBA in 0..1 range
 }
