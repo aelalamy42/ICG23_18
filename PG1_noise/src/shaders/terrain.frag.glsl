@@ -32,7 +32,7 @@ void main()
 	 		shininess = 2.
 	*/
 	vec3 material_color = vec3(0.);
-	float shininess = 0.5;
+	float shininess = 0.;
 	if(v2f_height < terrain_water_level){
 		material_color = terrain_color_water;
 		shininess = 30.;
@@ -52,11 +52,11 @@ void main()
 	vec3 normal = normalize(v2f_normal);
 
 
-	vec3 color = vec3(0., 0., 0.);
+	vec3 color = material_color * ambient;
 	if(dot(normal, dir_to_light) > 0.){
-		color += light_color * material_color * ambient;
+		color += light_color * material_color * dot(normal, dir_to_light);
 		if(dot(normal, halfway_vect) > 0.){
-			color += light_color * material_color * (dot(normal, dir_to_light) + pow(dot(halfway_vect, normal), shininess));
+			color += light_color * material_color * pow(dot(halfway_vect, normal), shininess);
 		}
 	}
 	
