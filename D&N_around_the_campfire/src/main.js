@@ -9,8 +9,8 @@ import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg
 
 import {SysRenderTextured, SysRenderMirror, SysRenderMeshesWithLight} from "./mesh_render.js"
 
-import {create_choice_menu} from "./menu.js"
-import { create_scene_content_reflections, create_scene_content_shadows, load_resources } from "./scene.js"
+
+import { create_scene_content_shadows, load_resources } from "./scene.js"
 
 
 function sys_orbit(scene_info) {
@@ -130,7 +130,7 @@ async function main() {
 	// Systems
 
 	const sys_render_unshaded = new SysRenderTextured(regl, resources)
-	sys_render_unshaded.check_scene(scenes.Reflections)
+	sys_render_unshaded.check_scene(scenes.Shadows)
 	sys_render_unshaded.init()
 
 	//const sys_render_mirror = new SysRenderMirror(regl, resources)
