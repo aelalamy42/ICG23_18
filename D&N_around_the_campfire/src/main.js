@@ -63,6 +63,7 @@ async function main() {
 	let vis_cubemap = true
 	register_keyboard_action('c', () => vis_cubemap = !vis_cubemap);
 
+	/*
 	// mode
 	let render_mode = 'Reflections'
 	create_choice_menu(
@@ -73,8 +74,9 @@ async function main() {
 			render_mode = mode
 		},
 		true, // use url
-	)
+	)*/
 
+	/*
 	// Predefined views
 	register_keyboard_action('0', () => {
 		console.log('[' + frame_info.mat_view.join(', ') + ']')
@@ -111,8 +113,7 @@ async function main() {
 
 		mat4.set(frame_info.mat_turntable, -0.485123013297449, 0.7622279286347869, -0.4285606687253571, 0, -0.8744459171207806, -0.4228669861897321, 0.23775586222343667, 0, 0, 0.49009396731640664, 0.8716696066744928, 0, 0, 0, -15, 1)
 	})
-
-
+	*/
 
 	/*---------------------------------------------------------------
 		Scene and systems
@@ -122,7 +123,7 @@ async function main() {
 	const resources = await load_resources(regl)	
 
 	const scenes = {
-		Reflections: create_scene_content_reflections(),
+		//Reflections: create_scene_content_reflections(),
 		Shadows: create_scene_content_shadows(),
 	}
 
@@ -132,8 +133,8 @@ async function main() {
 	sys_render_unshaded.check_scene(scenes.Reflections)
 	sys_render_unshaded.init()
 
-	const sys_render_mirror = new SysRenderMirror(regl, resources)
-	sys_render_mirror.init()
+	//const sys_render_mirror = new SysRenderMirror(regl, resources)
+	//sys_render_mirror.init()
 
 	const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
 	sys_render_light.init()
@@ -242,7 +243,7 @@ async function main() {
 		regl.clear({color: [0, 0, 0, 1]});
 
 		sys_orbit(scene_info)
-
+		/*
 		if(render_mode == 'Reflections') {
 			// We need to render the scene several times:
 			// to capture the cubemap, and to render the scene onto the screen
@@ -261,14 +262,15 @@ async function main() {
 				sys_render_mirror.env_capture.visualize()
 			}
 
-		} else if (render_mode == 'Shadows') {
+		} else */
+		//if (render_mode == 'Shadows') {
 
 			sys_render_light.render(frame_info, scene_info)
 
 			if(vis_cubemap) {
 				sys_render_light.env_capture.visualize()
 			}
-		}
+		//}
 
 		debug_text.textContent = `
 `;
