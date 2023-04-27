@@ -26,18 +26,18 @@ As extentions, we would like to:
 
 # Schedule
 
-Week 1: Make the whole blender model (Alexand + Begin working on the fire particle function.  
+Week 1: Make the whole blender model (Alexandra) and integrate it in WebGL + Begin working on the fire particle function (Ahmed).  
 
-Week 2: Work the particles function for the fire + Put in place the day and night cycle.  
+Week 2: Work on the particles function for the fire/smoke (Ahmed) + Put in place the day and night cycle and integrate shading (Alexandra).  
 
-Week 3: Integrate the fire within the blender model and add shading and lighting based on the fire.  
+Week 3: Integrate the fire within the blender model (Ahmed) and add shading and lighting based on the fire (Alexandra).  
 
-Week 4: Integrate fireflies.  
+Week 4: Create the fireflies model (Ahmed) and integrate them in the scene (shadows, lighting, movement) (Alexandra).  
 
-Week 5: Create characters animations.  
+Week 5: Create characters (Alexandra) and animate them (Ahmed).  
 
 
 # Resources
 - Blender  
 - WebGL  
-- https://sketchfab.com/3d-models/teacup-house-a9a4d881c4f6458394e4fe66fc575216#download
+- [Inspiration for the model](https://sketchfab.com/3d-models/teacup-house-a9a4d881c4f6458394e4fe66fc575216#download)
