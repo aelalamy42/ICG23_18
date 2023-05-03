@@ -136,8 +136,8 @@ async function main() {
 	//const sys_render_mirror = new SysRenderMirror(regl, resources)
 	//sys_render_mirror.init()
 
-	/*const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
-	sys_render_light.init()*/
+	const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
+	sys_render_light.init()
 
 	/*---------------------------------------------------------------
 		Frame info
@@ -265,10 +265,10 @@ async function main() {
 		} else */
 		//if (render_mode == 'Shadows') {
 
-			//sys_render_light.render(frame_info, scene_info)
+			sys_render_light.render(frame_info, scene_info)
 			sys_render_unshaded.render(frame_info, scene_info)
 			if(vis_cubemap) {
-				//sys_render_light.env_capture.visualize()
+				sys_render_light.env_capture.visualize()
 			}
 		//}
 
