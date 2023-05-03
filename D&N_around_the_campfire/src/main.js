@@ -82,7 +82,7 @@ async function main() {
 		console.log('[' + frame_info.mat_view.join(', ') + ']')
 		console.log(frame_info)
 	})
-	const set_predef_view_1 = () => {
+	*/const set_predef_view_1 = () => {
 		is_paused = true
 
 		frame_info.sim_time = 1.
@@ -92,7 +92,7 @@ async function main() {
 		frame_info.cam_distance_factor = 1.4693280768000003
 		
 		mat4.set(frame_info.mat_turntable, 0.3985278716916164, -0.42238331447052535, 0.8141055651092455, 0, 0.9171562219627312, 0.18353636962060468, -0.3537497216133721, 0, 0, 0.8876411080405088, 0.4605358436827886, 0, 0, 0, -22.039921152000005, 1)
-	}
+	}/*
 	register_keyboard_action('1', set_predef_view_1)
 	register_keyboard_action('2', () => {
 		is_paused = true
@@ -136,8 +136,8 @@ async function main() {
 	//const sys_render_mirror = new SysRenderMirror(regl, resources)
 	//sys_render_mirror.init()
 
-	const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
-	sys_render_light.init()
+	/*const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
+	sys_render_light.init()*/
 
 	/*---------------------------------------------------------------
 		Frame info
@@ -218,7 +218,7 @@ async function main() {
 
 		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
 
-		const scene_info = scenes[render_mode]
+		const scene_info = scenes.Shadows
 
 		if (! is_paused) {
 			const dt = frame.time - prev_regl_time
@@ -265,10 +265,10 @@ async function main() {
 		} else */
 		//if (render_mode == 'Shadows') {
 
-			sys_render_light.render(frame_info, scene_info)
-
+			//sys_render_light.render(frame_info, scene_info)
+			sys_render_unshaded.render(frame_info, scene_info)
 			if(vis_cubemap) {
-				sys_render_light.env_capture.visualize()
+				//sys_render_light.env_capture.visualize()
 			}
 		//}
 

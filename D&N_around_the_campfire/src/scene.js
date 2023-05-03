@@ -165,33 +165,31 @@ export async function load_resources(regl) {
 		resource_promises[texture_name] = load_texture(regl, `./textures/${texture_name}`)
 	}
 
-	const floor_tex_name = 'floor_tile.webp'*/
+	*/
 	/* #TODO GL3.1.2: Set the texture options of the tile texture so that it repeats.
 		Consider the 'wrap' option described here:
 		https://github.com/regl-project/regl/blob/master/API.md#textures
 	*/
-	/*const tex_load_options = {
+	const tex_load_options = {
 		wrap: 'repeat'
 	}
-	resource_promises[floor_tex_name] = load_texture(regl, `./textures/${floor_tex_name}`, tex_load_options)
+	const scene_tex_name = 'Compgraph.mtl'
+	resource_promises[scene_tex_name] = load_texture(regl, `./meshes/${scene_tex_name}`, tex_load_options)
 
 	// We load cube sides as images because we will put them into the cubemap constructor
-	for(let cube_side_idx = 0; cube_side_idx < 6; cube_side_idx++) {
+	/*for(let cube_side_idx = 0; cube_side_idx < 6; cube_side_idx++) {
 		const texture_name = `cube_side_${cube_side_idx}.png`
 		resource_promises[texture_name] = load_image(`./textures/${texture_name}`)
 	}
 */
 
-	/*const shaders_to_load = [
+	const shaders_to_load = [
+		'normals.vert.glsl', 'normals.frag.glsl',
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
-		'mirror.vert.glsl', 'mirror.frag.glsl',
-		'shadowmap_gen.vert.glsl', 'shadowmap_gen.frag.glsl',
-		'phong_shadow.vert.glsl', 'phong_shadow.frag.glsl',
-		'cubemap_visualization.vert.glsl', 'cubemap_visualization.frag.glsl',
 	]
 	for(const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
-	}*/
+	}
 
 	const meshes_to_load = [
 		"Compgraph.obj",
@@ -232,31 +230,16 @@ export function create_scene_content_shadows() {
 				angular_velocity: 0.5,
 			},
 		},
-
-
-		{
-			translation: [0., 0., 0.],
-
-			light: {
-				color: [1., 0.8, 0.7],
-				intensity: 100.,
-			},
-
-			orbit: {
-				anchor: [0., 0., 3.],
-				axis: [0., 0., 1.],
-				radius: 4.5,
-				angular_velocity: 1.5,
-			},
-		},
-
 		
 
 		{
 			translation: [0., 0., 0.],
-			scale: [1., 1., 1.],
+			scale: [10., 10., 10.],
 					
 			mesh: 'Compgraph.obj',
+			material: {
+				texture: 'Compgraph.mtl',
+			}
 
 		}
 

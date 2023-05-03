@@ -195,7 +195,7 @@ export async function load_resources(regl) {
 
 	const meshes_to_load = [
 		"vase1.obj", "cup2.obj", "table.obj", "shadow_scene__terrain.obj", "shadow_scene__wheel.obj",
-		"vase_centered.obj",
+		"vase_centered.obj", "Compgraph.obj"
 	]
 	for(const mesh_name of meshes_to_load) {
 		resource_promises[mesh_name] = icg_mesh_load_obj_into_regl(regl, `./meshes/${mesh_name}`)
@@ -376,6 +376,16 @@ export function create_scene_content_shadows() {
 			scale: [4., 4., 4.],
 				
 			mesh: 'shadow_scene__terrain.obj',
+
+			material: {
+				texture: 'tex_gray',
+			}
+		},
+		{
+			translation: [0., 0., 0.],
+			scale: [4., 4., 4.],
+				
+			mesh: 'Compgraph.obj',
 
 			material: {
 				texture: 'tex_gray',
