@@ -7,7 +7,7 @@ import {DOM_loaded_promise, load_text, register_keyboard_action} from "./icg_web
 import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
 
 
-import {SysRenderTextured, SysRenderMirror, SysRenderMeshesWithLight} from "./mesh_render.js"
+import {SysRenderTextured, SysRenderMeshesWithLight, SysRenderSky} from "./mesh_render.js"
 
 
 import { create_scene_content_shadows, load_resources } from "./scene.js"
@@ -139,6 +139,9 @@ async function main() {
 	const sys_render_light = new SysRenderMeshesWithLight(regl, resources)
 	sys_render_light.init()
 
+	const sys_render_sky = new SysRenderSky(regl, resources);
+	sys_render_sky.init()
+
 	/*---------------------------------------------------------------
 		Frame info
 	---------------------------------------------------------------*/
@@ -264,9 +267,19 @@ async function main() {
 
 		} else */
 		//if (render_mode == 'Shadows') {
-
-			sys_render_light.render(frame_info, scene_info)
-			sys_render_unshaded.render(frame_info, scene_info)
+			const sky_info =  scene_info.actors.slice(2)
+			const terrain_info = scene_info.actors.slice(0,2)
+			console.log('terrain', terrain_info)
+			console.log('sky', sky_info)
+			console.log('all', scene_info.actors)
+			sys_render_light.render(frame_info, {
+				sim_time: scene_info.sim_time,
+				actors: terrain_info,
+			})
+			sys_render_sky.render(frame_info, {
+				sim_time: scene_info.sim_time,
+				actors: sky_info,
+			})
 			if(vis_cubemap) {
 				sys_render_light.env_capture.visualize()
 			}

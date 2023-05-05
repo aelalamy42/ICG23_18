@@ -128,7 +128,7 @@ class SysRenderMeshes {
 
 				light_position: light_position_cam,
 				light_color: light_color,
-
+				
 				material: {
 					texture: this.resources[actor.material.texture],
 				},
@@ -144,19 +144,8 @@ export class SysRenderTextured extends SysRenderMeshes {
 	static shader_name = 'unshaded'
 }
 
-export class SysRenderMirror extends SysRenderMeshes {
-	static shader_name = 'mirror'
-
-	constructor(regl, resources) {
-		super(regl, resources)
-
-	}
-
-	init() {
-		this.env_capture = new EnvironmentCapture(this.regl, this.resources)
-
-		super.init()
-	}
+export class SysRenderSky extends SysRenderMeshes{
+	static shader_name = 'sky'
 
 	pipeline_uniforms(regl) {
 		return {
@@ -164,41 +153,60 @@ export class SysRenderMirror extends SysRenderMeshes {
 			mat_model_view: regl.prop('mat_model_view'),
 			mat_normals_to_view: regl.prop('mat_normals_to_view'),
 
+			light_position: regl.prop('light_position'),
+			light_color: regl.prop('light_color'),
+
 			tex_color: regl.prop('material.texture'),
-			cube_env_map: this.env_capture.env_cubemap,
+			tex_mask: regl.prop('material.mask'),
+
+			sim_time: regl.prop('sim_time'),
 		}
 	}
 
-	render(frame_info, scene_info, render_scene_func) {
+	render(frame_info, scene_info) {
+		/* 
+		We will collect all objects to draw with this pipeline into an array
+		and then run the pipeline on all of them.
+		This way the GPU does not need to change the active shader between objects.
+		*/
+		const entries_to_draw = []
+
+		// Read frame info
 		const {mat_projection, mat_view, light_position_cam, light_color} = frame_info
-		
+
+		// For each planet, construct information needed to draw it using the pipeline
 		for( const actor of scene_info.actors ) {
-			// skip objects with no reflections
-			if(!actor.mesh || !actor.material.mirror) {
+
+			// skip objects with reflections
+			if(!actor.mesh || actor.material.mirror) {
 				continue
 			}
-			
+
 			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
 
-			// capture the environment from this actor's point of view
-			this.env_capture.capture_scene_cubemap(frame_info, scene_info, actor.translation, render_scene_func)
-
-			this.pipeline({
+			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
 				mat_mvp: mat_mvp,
 				mat_model_view: mat_model_view,
 				mat_normals_to_view: mat_normals_to_view,
 
+				light_position: light_position_cam,
+				light_color: light_color,
+
+				sim_time: scene_info.sim_time,
+				
 				material: {
 					texture: this.resources[actor.material.texture],
+					mask: this.resources[actor.material.mask],
 				},
 			})
 		}
 
 		// Draw on the GPU
+		this.pipeline(entries_to_draw)
 	}
-}
 
+}
 
 export class SysRenderMeshesWithLight extends SysRenderMeshes {
 	static shader_name = 'unshaded'

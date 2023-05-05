@@ -182,12 +182,17 @@ export async function load_resources(regl) {
 		resource_promises[texture_name] = load_image(`./textures/${texture_name}`)
 	}
 
+	resource_promises['clouds'] = load_texture(regl, './textures/clouds.jpg', {
+		wrap: 'repeat'
+	})
+
 
 	const shaders_to_load = [
 		'phong_shadow.vert.glsl', 'phong_shadow.frag.glsl',
 		'cubemap_visualization.vert.glsl', 'cubemap_visualization.frag.glsl',
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
-		'shadowmap_gen.vert.glsl', 'shadowmap_gen.frag.glsl'
+		'shadowmap_gen.vert.glsl', 'shadowmap_gen.frag.glsl',
+		'sky.vert.glsl', 'sky.frag.glsl',
 	]
 	for(const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
@@ -223,14 +228,14 @@ export function create_scene_content_shadows() {
 
 			light: {
 				color: [1., 0.8, 0.7],
-				intensity: 900.,
+				intensity: 1000.,
 			},
 
 			orbit: {
 				anchor: [0., 0., 0.],
 				axis: [0., 1., 0.],
-				radius: 30.,
-				angular_velocity: 1.5,
+				radius: 20.,
+				angular_velocity: 4.,
 			},
 		},
 		
@@ -247,11 +252,12 @@ export function create_scene_content_shadows() {
 
 		{
 			translation: [0., 0., 0.],
-			scale: [60., 60., 60.],
+			scale: [100., 100., 100.],
 					
 			mesh: 'mesh_sphere',
 			material: {
 				texture: 'tex_blue',
+				mask: 'clouds',
 			}
 		}
 
