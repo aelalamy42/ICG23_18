@@ -1,4 +1,4 @@
-# Blender 3.4.1 MTL File: 'Compgraph.blend'
+# Blender 3.4.1 MTL File: 'Compgraph(2).blend'
 # www.blender.org
 
 newmtl Material.001
@@ -504,9 +504,9 @@ illum 2
 newmtl grass_floor_MAT
 Ns 1000.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.109462 0.701102 0.004025
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
+map_Kd /home/akelalamy/COMPUTERGRAPHICS/ICG23_18/D&N_around_the_campfire/textures/Merged_document.png

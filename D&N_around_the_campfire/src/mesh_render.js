@@ -1,5 +1,6 @@
-import {vec2, vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
-import {mat4_matmul_many} from "./icg_math.js"
+import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
+import { cross, length, dot } from "../lib/gl-matrix_3.3.0/esm/vec3.js";
+import { mat4_matmul_many } from "./icg_math.js"
 import { EnvironmentCapture } from "./env_capture.js"
 
 /*
@@ -37,7 +38,7 @@ class SysRenderMeshes {
 			light_color: regl.prop('light_color'),
 
 			tex_color: regl.prop('material.texture'),
-			
+
 			color_factor: 1.,
 		}
 	}
@@ -55,11 +56,11 @@ class SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
-			uniforms: this.pipeline_uniforms(regl),	
-	
-			cull: {enable: true}, // don't draw back faces
+			uniforms: this.pipeline_uniforms(regl),
+
+			cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
@@ -68,21 +69,21 @@ class SysRenderMeshes {
 
 	check_scene(scene_info) {
 		// check if all meshes are loaded
-		for( const actor of scene_info.actors ) {
-			if(actor.mesh) {
+		for (const actor of scene_info.actors) {
+			if (actor.mesh) {
 				this.get_resource_checked(actor.material.texture)
 			}
 		}
 	}
 
 	make_transformation_matrices(frame_info, actor) {
-		const {mat_projection, mat_view} = frame_info
+		const { mat_projection, mat_view } = frame_info
 
 		// Construct mat_model_to_world from translation and sclae
 		// If we wanted to have a rotation too, we'd use mat4.fromRotationTranslationScale
 		mat4.fromScaling(actor.mat_model_to_world, actor.scale)
 		mat4.translate(actor.mat_model_to_world, actor.mat_model_to_world, actor.translation)
-		
+
 		const mat_model_view = mat4.create()
 		const mat_mvp = mat4.create()
 		const mat_normals_to_view = mat3.create()
@@ -96,7 +97,7 @@ class SysRenderMeshes {
 		mat3.transpose(mat_normals_to_view, mat_normals_to_view)
 		mat3.invert(mat_normals_to_view, mat_normals_to_view)
 
-		return {mat_model_view, mat_mvp, mat_normals_to_view}
+		return { mat_model_view, mat_mvp, mat_normals_to_view }
 	}
 
 	render(frame_info, scene_info) {
@@ -108,17 +109,17 @@ class SysRenderMeshes {
 		const entries_to_draw = []
 
 		// Read frame info
-		const {mat_projection, mat_view, light_position_cam, light_color} = frame_info
+		const { mat_projection, mat_view, light_position_cam, light_color } = frame_info
 
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -128,7 +129,7 @@ class SysRenderMeshes {
 
 				light_position: light_position_cam,
 				light_color: light_color,
-				
+
 				material: {
 					texture: this.resources[actor.material.texture],
 				},
@@ -144,7 +145,7 @@ export class SysRenderTextured extends SysRenderMeshes {
 	static shader_name = 'unshaded'
 }
 
-export class SysRenderSky extends SysRenderMeshes{
+export class SysRenderSky extends SysRenderMeshes {
 	static shader_name = 'sky'
 
 	pipeline_uniforms(regl) {
@@ -172,17 +173,17 @@ export class SysRenderSky extends SysRenderMeshes{
 		const entries_to_draw = []
 
 		// Read frame info
-		const {mat_projection, mat_view, light_position_cam, light_color} = frame_info
+		const { mat_projection, mat_view, light_position_cam, light_color } = frame_info
 
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -194,7 +195,7 @@ export class SysRenderSky extends SysRenderMeshes{
 				light_color: light_color,
 
 				sim_time: scene_info.sim_time,
-				
+
 				material: {
 					texture: this.resources[actor.material.texture],
 					mask: this.resources[actor.material.mask],
@@ -247,11 +248,11 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
-			uniforms: this.pipeline_uniforms(regl),	
-	
-			cull: {enable: true}, // don't draw back faces
+			uniforms: this.pipeline_uniforms(regl),
+
+			cull: { enable: true }, // don't draw back faces
 
 			// blend mode
 			// The depth buffer needs to be filled before calling this pipeline,
@@ -274,7 +275,7 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 					dst: 'one',
 				},
 			},
-			
+
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
@@ -287,33 +288,31 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			},
 			// Faces, as triplets of vertex indices
 			elements: regl.prop('mesh.faces'),
-	
+
 			// Uniforms: global data available to the shader
 			uniforms: {
 				mat_mvp: regl.prop('mat_mvp'),
 				mat_model_view: regl.prop('mat_model_view'),
 			},
-	
-			cull: {enable: true}, // don't draw back faces
 
 			vert: this.get_resource_checked(`shadowmap_gen.vert.glsl`),
 			frag: this.get_resource_checked(`shadowmap_gen.frag.glsl`),
 		})
-			
+
 	}
 
 	render_shadowmap(frame_info, scene_info) {
 
 		const entries_to_draw = []
 
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with no mesh or no reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -331,14 +330,14 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 		// Read frame info
 
 		// For each planet, construct information needed to draw it using the pipeline
-		for( const actor of scene_info.actors ) {
+		for (const actor of scene_info.actors) {
 
 			// skip objects with reflections
-			if(!actor.mesh || actor.material.mirror) {
+			if (!actor.mesh || actor.material.mirror) {
 				continue
 			}
 
-			const {mat_model_view, mat_mvp, mat_normals_to_view} = this.make_transformation_matrices(frame_info, actor)
+			const { mat_model_view, mat_mvp, mat_normals_to_view } = this.make_transformation_matrices(frame_info, actor)
 
 			entries_to_draw.push({
 				mesh: this.resources[actor.mesh],
@@ -360,14 +359,14 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 	}
 
 	render(frame_info, scene_info) {
-		const {mat_projection, mat_view} = frame_info
-		
+		const { mat_projection, mat_view } = frame_info
+
 		// draw ambient pass without shading
 		super.render(frame_info, scene_info)
 
-		for( const light_actor of scene_info.actors ) {
+		for (const light_actor of scene_info.actors) {
 			// skip objects with no light
-			if(! light_actor.light) {
+			if (!light_actor.light) {
 				continue
 			}
 
@@ -386,3 +385,198 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 	}
 }
 
+export class SysRenderParticles extends SysRenderMeshes {
+	static shader_name = 'fire'
+
+	init_pipeline(regl) {
+		this.mat_mvp = mat4.create();
+		this.mat_model_to_world = mat4.create();
+		this.mat_scale = mat4.create();//mat4.fromScaling(mat4.create(), [10.,10.,10.]);
+		// initial particles state and texture for buffer
+		// multiply by 4 for R G B A
+		const sqrtNumParticles = 16;
+		const numParticles = sqrtNumParticles * sqrtNumParticles;
+		const pointWidth = 5;
+		const initialParticleState = new Float32Array(numParticles * 4);
+		for (let i = 0; i < numParticles; ++i) {
+			const r = Math.sqrt(Math.random());
+			const theta = Math.random() * 2 * Math.PI;
+			// store x then y and then leave 2 spots empty
+			initialParticleState[i * 4] = r * Math.cos(theta); // x position
+			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
+		}
+
+		// create a regl framebuffer holding the initial particle state
+		function createInitialParticleBuffer(initialParticleState) {
+			// create a texture where R holds particle X and G holds particle Y position
+			const initialTexture = regl.texture({
+				data: initialParticleState,
+				shape: [sqrtNumParticles, sqrtNumParticles, 4],
+				type: 'float'
+			});
+
+			// create a frame buffer using the state as the colored texture
+			return regl.framebuffer({
+				color: initialTexture,
+				depth: false,
+				stencil: false,
+			});
+		}
+
+		// initialize particle states
+		let prevParticleState = createInitialParticleBuffer(initialParticleState);
+		let currParticleState = createInitialParticleBuffer(initialParticleState);
+		let nextParticleState = createInitialParticleBuffer(initialParticleState);
+
+		// cycle which buffer is being pointed to by the state variables
+		function cycleParticleStates() {
+			const tmp = prevParticleState;
+			prevParticleState = currParticleState;
+			currParticleState = nextParticleState;
+			nextParticleState = tmp;
+		}
+
+
+		// create array of indices into the particle texture for each particle
+		const particleTextureIndex = [];
+		for (let i = 0; i < sqrtNumParticles; i++) {
+			for (let j = 0; j < sqrtNumParticles; j++) {
+				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
+			}
+		}
+		const shader_name = this.constructor.shader_name
+
+		console.log('Compiling shaders: ', shader_name)
+		const drawParticles = regl({
+			attributes: {
+				particleTextureIndex,
+			},
+
+			primitive: 'points',
+			count: numParticles,
+
+			depth: {
+				enable: false,
+				mask: false,
+			},
+
+			// Uniforms: global data available to the shader
+			uniforms: {
+				pointWidth,
+				particleState: () => currParticleState, // important to use a function here. Otherwise it would cache and not use the newest buffer.
+				mat_mvp: regl.prop('mat_mvp'),
+			},
+
+			blend: {
+				enable: true,
+				func: {
+					src: 'src alpha',
+					dst: 'one minus src alpha',
+				},
+			},
+
+			vert: this.get_resource_checked(`${shader_name}draw.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}draw.frag.glsl`),
+		})
+
+		const updateParticles = regl({
+			//IMPORTANT : Write to a framebuffer, not to the screen!!!
+			framebuffer: () => nextParticleState,
+
+			attributes: {
+				position: [
+					-4, 0,
+					4, 4,
+					4, -4
+				]
+			},
+
+			// pass in previous states to work from
+			uniforms: {
+				// must use a function so it gets updated each call
+				currParticleState: () => currParticleState,
+				prevParticleState: () => prevParticleState,
+			},
+
+			// it's a triangle - 3 vertices
+			count: 3,
+
+			vert: this.get_resource_checked(`${shader_name}update.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
+		});
+
+		this.pipeline = () => {
+
+			// draw the points using our created regl func
+			drawParticles({
+				mat_mvp: this.mat_mvp,
+			});
+
+			// update position of particles in state buffers
+			updateParticles();
+
+			// update pointers for next, current, and previous particle states
+			cycleParticleStates();
+
+		};
+	}
+
+	calculate_model_matrix({camera_position}) {
+
+		// TODO 5.1.1: Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
+		mat4.identity(this.mat_model_to_world);
+		const nb = vec3.fromValues(0.,0.,1.);
+		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
+		const rotation_axis = cross(vec3.create(), nb, camera_position);
+		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
+		//console.error(camera_position);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale);
+
+	}
+
+	render(frame_info) {
+		const { mat_projection, mat_view } = frame_info
+		this.calculate_model_matrix(frame_info);
+		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view);//, this.mat_model_to_world);
+		this.pipeline();
+	}
+
+	check_scene(scene_info) {
+		// check if all meshes are loaded
+		for (const actor of scene_info.actors) {
+			if (actor.mesh) {
+				this.get_resource_checked(actor.material.texture)
+			}
+		}
+	}
+
+	init_positions(nParticles, height, width) {
+		const positions = [];
+		for (let index = 0; index < nParticles; index++) {
+			const alpha = vec2.random(vec2.create())
+			positions[index] = [alpha[0] * width + width / 2, alpha[1] * height + height / 2]
+		}
+		return positions;
+	}
+
+	init_velocity(nParticles) {
+		const init_vel = [];
+		for (let index = 0; index < nParticles; index++) {
+			const alpha = Math.random()
+			const y = alpha * 0.5 + (1 - alpha) * 0.1
+			init_vel[index] = [0., y, 0.];
+		}
+		return init_vel;
+	}
+
+	init_start(nParticles) {
+		const start_times = [];
+		let time = 0.;
+		for (let index = 0; index < nParticles; index++) {
+			start_times[index] = time;
+			time += 0.00075;
+		}
+		return start_times;
+	}
+
+}

@@ -7,7 +7,7 @@ import {DOM_loaded_promise, load_text, register_keyboard_action} from "./icg_web
 import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
 
 
-import {SysRenderTextured, SysRenderMeshesWithLight, SysRenderSky} from "./mesh_render.js"
+import {SysRenderTextured, SysRenderMeshesWithLight, SysRenderSky, SysRenderParticles} from "./mesh_render.js"
 
 
 import { create_scene_content_shadows, load_resources } from "./scene.js"
@@ -216,11 +216,14 @@ async function main() {
 	---------------------------------------------------------------*/
 
 	let prev_regl_time = 0
+	const particles = new SysRenderParticles(regl, resources);
+	particles.init()
 
 	regl.frame((frame) => {
 
 		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
 
+		
 		const scene_info = scenes.Shadows
 
 		if (! is_paused) {
@@ -246,6 +249,24 @@ async function main() {
 		regl.clear({color: [0, 0, 0, 1]});
 
 		sys_orbit(scene_info)
+
+		// Calculate camera position and store it in `camera_position`, it will be needed for the billboard
+		{
+			/*
+			Camera is at [0, 0, 0] in camera coordinates.
+			mat_view is a transformation from world to camera coordinates.
+			The inverse of mat_view is a transformation from camera to world coordinates.
+			Transforming [0, 0, 0] from camera to world we obtain the world position of the camera.
+				cam_pos = mat_view^-1 * [0, 0, 0]^T
+			*/
+			const mat_camera_to_world = mat4.invert(mat4.create(), mat_view);
+
+			// Transform [0, 0, 0] from camera to world:
+			//const camera_position = vec3.transformMat4([0, 0, 0], [0, 0, 0], mat_view_invert);
+			// But the rotation and scale parts of the matrix do no affect [0, 0, 0] so, we can just get the translation, its cheaper:
+			mat4.getTranslation(camera_position, mat_camera_to_world);
+		}
+		
 		/*
 		if(render_mode == 'Reflections') {
 			// We need to render the scene several times:
@@ -269,9 +290,6 @@ async function main() {
 		//if (render_mode == 'Shadows') {
 			const sky_info =  scene_info.actors.slice(2)
 			const terrain_info = scene_info.actors.slice(0,2)
-			console.log('terrain', terrain_info)
-			console.log('sky', sky_info)
-			console.log('all', scene_info.actors)
 			sys_render_light.render(frame_info, {
 				sim_time: scene_info.sim_time,
 				actors: terrain_info,
@@ -284,6 +302,9 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
+		
+		particles.render(frame_info);
+
 
 		debug_text.textContent = `
 `;

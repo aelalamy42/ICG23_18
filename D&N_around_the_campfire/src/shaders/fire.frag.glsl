@@ -54,7 +54,7 @@ vec3 fireColor(float t, vec2 st) {
 }
 
 void main() {
-  vec2 st = gl_PointCoord.xy; // we use gl_PointCoord because the fragment shader is called once per particle and 
+ /**/ vec2 st = gl_PointCoord.xy; // we use gl_PointCoord because the fragment shader is called once per particle and 
   // it gives us the position within the current particle's texture coordinates
 
   float t = u_time * 0.1;
@@ -71,5 +71,5 @@ void main() {
   vec3 color = fireColor(t, pos);
   color *= pow(noiseVal, 2.0) * 2.0;
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(1.,1.,1., 1.0);
 }

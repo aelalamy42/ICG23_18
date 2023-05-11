@@ -185,7 +185,7 @@ export async function load_resources(regl) {
 	resource_promises['clouds'] = load_texture(regl, './textures/clouds.jpg', {
 		wrap: 'repeat'
 	})
-
+	resource_promises['text_scene'] = load_texture(regl, './textures/Merged_document.png')
 
 	const shaders_to_load = [
 		'phong_shadow.vert.glsl', 'phong_shadow.frag.glsl',
@@ -193,6 +193,8 @@ export async function load_resources(regl) {
 		'unshaded.vert.glsl', 'unshaded.frag.glsl',
 		'shadowmap_gen.vert.glsl', 'shadowmap_gen.frag.glsl',
 		'sky.vert.glsl', 'sky.frag.glsl',
+		'fireupdate.vert.glsl', 'fireupdate.frag.glsl',
+		'firedraw.vert.glsl', 'firedraw.frag.glsl',
 	]
 	for(const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
@@ -224,7 +226,7 @@ export function create_scene_content_shadows() {
 
 		
 		{
-			translation: [0., 0., 0.],
+			translation: [40., 0., 0.],
 
 			light: {
 				color: [1., 0.8, 0.7],
@@ -235,7 +237,7 @@ export function create_scene_content_shadows() {
 				anchor: [0., 0., 0.],
 				axis: [0., 1., 0.],
 				radius: 20.,
-				angular_velocity: 4.,
+				angular_velocity: 1.,
 			},
 		},
 		
@@ -246,11 +248,11 @@ export function create_scene_content_shadows() {
 					
 			mesh: 'Compgraph_template.obj',
 			material: {
-				texture: 'tex_red',
+				texture: 'text_scene',
 			}
 		},
 
-		{
+	/*	{
 			translation: [0., 0., 0.],
 			scale: [100., 100., 100.],
 					
@@ -259,7 +261,8 @@ export function create_scene_content_shadows() {
 				texture: 'tex_blue',
 				mask: 'clouds',
 			}
-		}
+		}*/
+
 
 	]
 

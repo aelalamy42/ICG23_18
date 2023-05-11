@@ -1,3 +1,4 @@
+import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
 
 // Compile the vertex shader
 var vertexShaderSource = `#version 300 es
@@ -5,7 +6,7 @@ var vertexShaderSource = `#version 300 es
     in vec2 a_texCoord;
     in float a_size;
     in vec4 a_color;
-    in float a_age;
+    in float a_age;graphics
     uniform mat4 u_modelViewMatrix;
     uniform mat4 u_projectionMatrix;
     uniform float u_time;
@@ -24,6 +25,8 @@ var vertexShaderSource = `#version 300 es
         v_texCoord = a_texCoord;
     }
 `;
+const canvas = document.getElementById("myCanvas");
+const gl = canvas.getContext("webgl");
 var vertexShader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(vertexShader, vertexShaderSource);
 gl.compileShader(vertexShader);

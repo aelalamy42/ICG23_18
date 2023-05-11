@@ -160,6 +160,7 @@ export async function load_resources(regl) {
 	const textures_to_load = [
 		'outdoor_umbrellas_2k.webp',
 		'venice_sunrise_2k.webp',
+		'Merged_document.png',
 	]
 	for(const texture_name of textures_to_load) {
 		resource_promises[texture_name] = load_texture(regl, `./textures/${texture_name}`)
@@ -174,6 +175,7 @@ export async function load_resources(regl) {
 		wrap: 'repeat'
 	}
 	resource_promises[floor_tex_name] = load_texture(regl, `./textures/${floor_tex_name}`, tex_load_options)
+
 
 	// We load cube sides as images because we will put them into the cubemap constructor
 	for(let cube_side_idx = 0; cube_side_idx < 6; cube_side_idx++) {
@@ -195,7 +197,7 @@ export async function load_resources(regl) {
 
 	const meshes_to_load = [
 		"vase1.obj", "cup2.obj", "table.obj", "shadow_scene__terrain.obj", "shadow_scene__wheel.obj",
-		"vase_centered.obj", "Compgraph.obj"
+		"vase_centered.obj", "Compgraph_template.obj"
 	]
 	for(const mesh_name of meshes_to_load) {
 		resource_promises[mesh_name] = icg_mesh_load_obj_into_regl(regl, `./meshes/${mesh_name}`)
@@ -264,10 +266,10 @@ export function create_scene_content_reflections() {
 			translation: [0., 0., 0.],
 			scale: [5., 5., 5.],
 
-			mesh: 'mesh_floor',
+			mesh: 'Compgraph_template.obj',
 
 			material: {
-				texture: 'floor_tile.webp',
+				texture: 'Merged_document.png',
 			}
 		},
 		
