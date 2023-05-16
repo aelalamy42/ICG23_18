@@ -226,6 +226,16 @@ export function create_scene_content_shadows() {
 
 		
 		{
+			translation: [0., 0., 10.],
+
+			light: {
+				color: [1., 0.8, 0.7],
+				intensity: 100.,
+			},
+			
+		},
+		
+		{
 			translation: [40., 0., 0.],
 
 			light: {
@@ -236,11 +246,10 @@ export function create_scene_content_shadows() {
 			orbit: {
 				anchor: [0., 0., 0.],
 				axis: [0., 1., 0.],
-				radius: 20.,
+				radius: 50.,
 				angular_velocity: 1.,
 			},
 		},
-		
 
 		{
 			translation: [0., 0., 0.],
@@ -252,14 +261,14 @@ export function create_scene_content_shadows() {
 			}
 		},
 
-	/*	{
+		/*{
 			translation: [0., 0., 0.],
 			scale: [100., 100., 100.],
 					
 			mesh: 'mesh_sphere',
 			material: {
 				texture: 'tex_blue',
-				mask: 'clouds',
+				mask: 'tex_blue',
 			}
 		}*/
 

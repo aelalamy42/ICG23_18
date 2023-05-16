@@ -387,17 +387,19 @@ export class SunBillboardActor extends Actor {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [this.size, this.size, this.size]);
 	}
 
-	calculate_model_matrix({camera_position}) {
+	calculate_model_matrix({camera_position, cam_angle_z}) {
 
 		// TODO 5.1.1: Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
 		mat4.identity(this.mat_model_to_world)
 		const nb = vec3.fromValues(0.,0.,1.);
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		console.error(rotation_angle);
+		const rotZ = mat4.fromZRotation(mat4.create(), -cam_angle_z);
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
-		const rotation_mat = mat4.fromRotation(mat4.create, rotation_angle, rotation_axis);
+		const rotation_mat = mat4.fromRotation(mat4.create, /*(Math.PI/2.) -*/ rotation_angle, rotation_axis);
+
 		//console.error(camera_position);
-		mat4_matmul_many(this.mat_model_to_world, rotation_mat, this.mat_scale);
+		mat4_matmul_many(this.mat_model_to_world, rotation_mat, rotZ, this.mat_scale);
 
 	}
 

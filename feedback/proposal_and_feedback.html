@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Day and Night around the campfire</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <link rel="stylesheet" href="icg_report.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Day and Night around the campfire</h1>
+</header>
+<h3 id="alexandra-lagutova-324449-ahmed-elalamy-324610">Alexandra Lagutova (324449) &amp; Ahmed Elalamy (324610)</h3>
+<figure>
+<img src="images/msg890695744-118997.jpg" width="500" alt="" /><figcaption>Blender prototype of the scene</figcaption>
+</figure>
+<figure>
+<img src="images/Untitled_Artwork_page-0001.jpg" width="500" alt="" /><figcaption>Sketch of the scene at night</figcaption>
+</figure>
+<figure>
+<img src="images/Untitled_Artwork%202_page-0001.jpg" width="500" alt="" /><figcaption>Sketch of the scene at day</figcaption>
+</figure>
+<h2 id="title-and-summary">Title and Summary</h2>
+<p>Our project will consist of an animation of a little campfire in the forest, and its life cycle throughout day and night. Along with the cycle of day and night, other animations will make the scene alive. We plan on working with WebGL and the homework framework that we now know better.</p>
+<h2 id="goals-and-deliverables">Goals and Deliverables</h2>
+<p>Our baseplan is to create an artistic scene, with the cycle of day and night and its influence on our campfire. We believe that this will be the minimum we should do to get a passing grade.</p>
+<p>As extentions, we would like to:</p>
+<ul>
+<li>add fireflies at night in the forest,</li>
+<li>make some little characters and animate them,</li>
+<li>add some interactivity features.</li>
+</ul>
+<h2 id="schedule">Schedule</h2>
+<p>Week 1: Make the whole blender model (Alexandra) and integrate it in WebGL + Begin working on the fire particle function (Ahmed).</p>
+<p>Week 2: Work on the particles function for the fire/smoke (Ahmed) + Put in place the day and night cycle and integrate shading (Alexandra).</p>
+<p>Week 3: Integrate the fire within the blender model (Ahmed) and add shading and lighting based on the fire (Alexandra).</p>
+<p>Week 4: Create the fireflies model (Ahmed) and integrate them in the scene (shadows, lighting, movement) (Alexandra).</p>
+<p>Week 5: Create characters (Alexandra) and animate them (Ahmed).</p>
+<h1 id="feedback-may-12th-2023">Feedback: May 12th 2023</h1>
+<p>Unfortunately, due to other projects and other obligations, we haven’t had the most time available to advance as much as we would’ve liked. It might also be possible that we underestimated the time that things were going to take. Our schedule should clear up starting next week so we will focus more on this project.</p>
+<p>We were able to make our scene in blender. We however had a lot of issues with importing it with the correct texture in WebGL.</p>
+<figure>
+<img src="images/blender.png" width="500" alt="" /><figcaption>Final Blender Model</figcaption>
+</figure>
+<figure>
+<img src="images/webgl_scene.png" width="500" alt="" /><figcaption>Model rendered in WebGL (you can see issues in the textures)</figcaption>
+</figure>
+<p>Then, we also started working on particles. This was mainly some research about how to implement it, and so far we have a billboard of a cloud/smoke-like particles for which the movement function is a pseudorandom path. We are still working on how to implement it within our scene, but following the ICG 2021 resource on billboarding that was providing to us by the teaching team, we have a pretty good understanding of what we need to do for it to be integrated in our scene.</p>
+<figure>
+<img src="images/particles.png" width="500" alt="" /><figcaption>First particle billboard</figcaption>
+</figure>
+<p>We also planned on how the day and night cycle would be implemented: that will be done by passing the simulation time in our shaders and changing colors and things based on this simulation time.</p>
+<h2 id="update-on-the-schedule">Update on the schedule</h2>
+<p>It seems appearant to us that some of our ideas for extensions might have been too ambitious. However, we still would like to make some of the extensions present in the grading contract. Therefore, what we would like to have finished before the final deadline is:</p>
+<ul>
+<li>Finish the core of our project by creating the fire and smoke dynamic of our campfire.</li>
+<li>Create clouds around the scene (with particles as well).</li>
+<li>Integrate the day and night concept in the most detailled way possible.</li>
+</ul>
+<p>Then, if time allows:</p>
+<ul>
+<li>Add some fireflies particles to contribute to the artistic effect of the scene.</li>
+<li>Add a bloom effect on the fire to make it more glowy.</li>
+</ul>
+<h1 id="resources">Resources</h1>
+<ul>
+<li>Blender<br />
+</li>
+<li>WebGL<br />
+</li>
+<li><a href="https://sketchfab.com/3d-models/teacup-house-a9a4d881c4f6458394e4fe66fc575216#download">Inspiration for the model</a><br />
+</li>
+<li>Particle systems and animation from “OpenGL 4 Shading Language Cookbook - Second Edition”<br />
+</li>
+<li>Github Gist code by Peter Beshai to understand how to render particles in regl. <a href="https://gist.github.com/pbeshai/dbed2fdac94b44d3b4573624a37fa9db">link here</a></li>
+</ul>
+</body>
+</html>

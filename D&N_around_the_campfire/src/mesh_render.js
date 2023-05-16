@@ -391,12 +391,12 @@ export class SysRenderParticles extends SysRenderMeshes {
 	init_pipeline(regl) {
 		this.mat_mvp = mat4.create();
 		this.mat_model_to_world = mat4.create();
-		this.mat_scale = mat4.create();//mat4.fromScaling(mat4.create(), [10.,10.,10.]);
+		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,3.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 16;
+		const sqrtNumParticles = 64;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 5;
+		const pointWidth = 20;
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -456,7 +456,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 			count: numParticles,
 
 			depth: {
-				enable: false,
+				enable: true,
 				mask: false,
 			},
 
@@ -473,6 +473,11 @@ export class SysRenderParticles extends SysRenderMeshes {
 					src: 'src alpha',
 					dst: 'one minus src alpha',
 				},
+				equation: {
+					rgb: 'add',
+					alpha: 'add'
+				},
+				color: [0., 0., 0., 0.],
 			},
 
 			vert: this.get_resource_checked(`${shader_name}draw.vert.glsl`),
@@ -521,7 +526,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 		};
 	}
 
-	calculate_model_matrix({camera_position}) {
+	calculate_model_matrix({camera_position, sim_time}) {
 
 		// TODO 5.1.1: Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
 		mat4.identity(this.mat_model_to_world);
@@ -529,15 +534,18 @@ export class SysRenderParticles extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
+		const Z = 0.5 + (sim_time*0.9) % 5.;
+		
+		const translatMat = mat4.fromTranslation(mat4.create(), [0., 0., Z]);
 		//console.error(camera_position);
-		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translatMat);
 
 	}
 
 	render(frame_info) {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
-		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view);//, this.mat_model_to_world);
+		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
 		this.pipeline();
 	}
 

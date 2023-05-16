@@ -287,9 +287,9 @@ async function main() {
 			}
 
 		} else */
-		//if (render_mode == 'Shadows') {
-			const sky_info =  scene_info.actors.slice(2)
-			const terrain_info = scene_info.actors.slice(0,2)
+		//if (render_mode == 'Shadows') {			
+			const sky_info =  scene_info.actors.slice(3)
+			const terrain_info = scene_info.actors.slice(0,3)
 			sys_render_light.render(frame_info, {
 				sim_time: scene_info.sim_time,
 				actors: terrain_info,
@@ -302,8 +302,8 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
-		
 		particles.render(frame_info);
+		
 
 
 		debug_text.textContent = `

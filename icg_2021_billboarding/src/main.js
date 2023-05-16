@@ -354,6 +354,7 @@ async function main() {
 			mat_projection: mat_projection,
 			light_position_cam: light_position_cam,
 			camera_position: camera_position,
+			cam_angle_z: cam_angle_z,
 		}
 
 		// Billboard needs to know the camera position to calculate its model matrix
