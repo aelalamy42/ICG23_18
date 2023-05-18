@@ -404,6 +404,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 			// store x then y and then leave 2 spots empty
 			initialParticleState[i * 4] = r * Math.cos(theta); // x position
 			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
+			initialParticleState[i * 4 + 2] = 0.;
 		}
 
 		// create a regl framebuffer holding the initial particle state
@@ -526,7 +527,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 		};
 	}
 
-	calculate_model_matrix({camera_position, sim_time}) {
+	calculate_model_matrix({camera_position}) {
 
 		// TODO 5.1.1: Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
 		mat4.identity(this.mat_model_to_world);
@@ -534,11 +535,8 @@ export class SysRenderParticles extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
-		const Z = 0.5 + (sim_time*0.9) % 5.;
-		
-		const translatMat = mat4.fromTranslation(mat4.create(), [0., 0., Z]);
 		//console.error(camera_position);
-		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translatMat);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale);
 
 	}
 
