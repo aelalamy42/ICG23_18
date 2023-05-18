@@ -7,6 +7,42 @@ const float freq_multiplier = 2.17;
 const float ampl_multiplier = 0.5;
 const int num_octaves = 4;
 
+#define NUM_GRADIENTS 12
+
+// -- Gradient table --
+vec2 gradients(int i) {
+	if (i ==  0) return vec2( 1,  1);
+	if (i ==  1) return vec2(-1,  1);
+	if (i ==  2) return vec2( 1, -1);
+	if (i ==  3) return vec2(-1, -1);
+	if (i ==  4) return vec2( 1,  0);
+	if (i ==  5) return vec2(-1,  0);
+	if (i ==  6) return vec2( 1,  0);
+	if (i ==  7) return vec2(-1,  0);
+	if (i ==  8) return vec2( 0,  1);
+	if (i ==  9) return vec2( 0, -1);
+	if (i == 10) return vec2( 0,  1);
+	if (i == 11) return vec2( 0, -1);
+	return vec2(0, 0);
+}
+
+float hash_poly(float x) {
+	return mod(((x*34.0)+1.0)*x, 289.0);
+}
+
+// -- Hash function --
+// Map a gridpoint to 0..(NUM_GRADIENTS - 1)
+int hash_func(vec2 grid_point) {
+	return int(mod(hash_poly(hash_poly(grid_point.x) + grid_point.y), float(NUM_GRADIENTS)));
+}
+
+// -- Smooth interpolation polynomial --
+// Use mix(a, b, blending_weight_poly(t))
+float blending_weight_poly(float t) {
+	return t*t*t*(t*(t*6.0 - 15.0)+10.0);
+}
+
+
 // We use here a perlin noise function to generate a random value and make the fire more realistic and natural
 float perlin_noise(in vec2 point) {
     vec2 c00 = floor(point);

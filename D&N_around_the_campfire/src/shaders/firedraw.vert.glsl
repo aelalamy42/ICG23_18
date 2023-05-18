@@ -9,12 +9,12 @@ varying vec3 fragColor;
 uniform float pointWidth;
 void main() {
 		// read in position from the state texture
-  vec2 position = texture2D(particleState, particleTextureIndex).xy;
+  vec3 position = texture2D(particleState, particleTextureIndex).xyz;
 		// copy color over to fragment shader
   fragColor = mix(vec3(0.), vec3(0.4), length(particleTextureIndex));
 		// scale to normalized device coordinates
 		// gl_Position is a special variable that holds the position of a vertex
-  gl_Position = mat_mvp * vec4(position, 0., 1.0);
+  gl_Position = mat_mvp * vec4(position, 1.0);
 
 		// update the size of a particles based on the prop pointWidth
   gl_PointSize = pointWidth;

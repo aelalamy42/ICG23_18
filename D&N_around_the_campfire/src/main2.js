@@ -1,7 +1,7 @@
 import {createREGL} from "../lib/regljs_2.1.0/regl.module.js"
 const width = window.innerWidth;
 const height = window.innerHeight;
-const pointWidth = 50;
+const pointWidth = 5;
 
 const animationTickLimit = -1; // -1 disables
 if (animationTickLimit >= 0) {
