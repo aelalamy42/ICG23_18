@@ -528,7 +528,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 
 	calculate_model_matrix({camera_position, sim_time}) {
 
-		// TODO 5.1.1: Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
+		// Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
 		mat4.identity(this.mat_model_to_world);
 		const nb = vec3.fromValues(0.,0.,1.);
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
