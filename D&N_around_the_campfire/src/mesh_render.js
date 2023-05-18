@@ -396,7 +396,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 		// multiply by 4 for R G B A
 		const sqrtNumParticles = 64;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 20;
+		const pointWidth = 10;
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -466,6 +466,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 				pointWidth,
 				particleState: () => currParticleState, // important to use a function here. Otherwise it would cache and not use the newest buffer.
 				mat_mvp: regl.prop('mat_mvp'),
+				u_time: regl.prop('u_time'),
 			},
 
 			blend: {
@@ -502,6 +503,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 				// must use a function so it gets updated each call
 				currParticleState: () => currParticleState,
 				prevParticleState: () => prevParticleState,
+				u_time: regl.prop('u_time'),
 			},
 
 			// it's a triangle - 3 vertices
@@ -511,15 +513,18 @@ export class SysRenderParticles extends SysRenderMeshes {
 			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
 		});
 
-		this.pipeline = () => {
+		this.pipeline = (frame_info) => {
 
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
+				u_time : frame_info.sim_time,
 			});
 
 			// update position of particles in state buffers
-			updateParticles();
+			updateParticles({
+				u_time : frame_info.sim_time,
+			});
 
 			// update pointers for next, current, and previous particle states
 			cycleParticleStates();
@@ -544,7 +549,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
 		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
-		this.pipeline();
+		this.pipeline(frame_info);
 	}
 
 	check_scene(scene_info) {
