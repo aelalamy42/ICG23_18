@@ -158,7 +158,6 @@ export class SysRenderSky extends SysRenderMeshes {
 			light_color: regl.prop('light_color'),
 
 			tex_color: regl.prop('material.texture'),
-			tex_mask: regl.prop('material.mask'),
 
 			sim_time: regl.prop('sim_time'),
 		}
@@ -198,7 +197,6 @@ export class SysRenderSky extends SysRenderMeshes {
 
 				material: {
 					texture: this.resources[actor.material.texture],
-					mask: this.resources[actor.material.mask],
 				},
 			})
 		}
@@ -374,9 +372,13 @@ export class SysRenderMeshesWithLight extends SysRenderMeshes {
 			this.env_capture.capture_scene_cubemap(frame_info, scene_info, light_actor.translation, (frame_info, scene_info) => {
 				this.render_shadowmap(frame_info, scene_info)
 			})
-
+			let alpha = 1.;
+			if(light_actor.light.fire){
+				alpha = Math.atan(5. * Math.sin(scene_info.sim_time))/Math.atan(5.)
+				console.log(alpha)
+			}
 			const light_position_cam = vec3.transformMat4([0., 0., 0.], light_actor.translation, mat_view)
-			const light_color = vec3.scale([0, 0, 0], light_actor.light.color, light_actor.light.intensity)
+			const light_color = vec3.scale([0, 0, 0], light_actor.light.color, light_actor.light.intensity * (alpha + 1)/2)
 
 			this.render_light_contributions(frame_info, scene_info, light_position_cam, light_color)
 		}

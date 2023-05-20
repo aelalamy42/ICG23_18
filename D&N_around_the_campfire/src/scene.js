@@ -227,11 +227,18 @@ export function create_scene_content_shadows() {
 		
 		{
 			translation: [0., 0., 10.],
+			scale: [2., 2., 2.],
 
 			light: {
 				color: [1., 0.8, 0.7],
 				intensity: 100.,
+				fire: 'yes',
 			},
+			
+			mesh: 'mesh_sphere',
+			material: {
+				texture: 'tex_gold',
+			}
 			
 		},
 		
@@ -261,7 +268,7 @@ export function create_scene_content_shadows() {
 			}
 		},
 
-		/*{
+		{
 			translation: [0., 0., 0.],
 			scale: [100., 100., 100.],
 					
@@ -270,7 +277,7 @@ export function create_scene_content_shadows() {
 				texture: 'tex_blue',
 				mask: 'tex_blue',
 			}
-		}*/
+		}
 
 
 	]

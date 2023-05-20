@@ -117,9 +117,9 @@ const updateParticles = regl({
 	attributes: {
 		// a triangle big enough to fill the screen
     position: [
-      -4, 0,
-      4, 4,
-      4, -4
+      0, 0.5,
+      0.5, 0,
+      0, 0
     ]
   },
 
