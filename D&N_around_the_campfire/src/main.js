@@ -7,7 +7,7 @@ import {DOM_loaded_promise, load_text, register_keyboard_action} from "./icg_web
 import {deg_to_rad, mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
 
 
-import {SysRenderTextured, SysRenderMeshesWithLight, SysRenderSky, SysRenderParticles} from "./mesh_render.js"
+import {SysRenderTextured, SysRenderMeshesWithLight, SysRenderSky, SysRenderParticles, SysRenderParticlesCloud} from "./mesh_render.js"
 
 
 import { create_scene_content_shadows, load_resources } from "./scene.js"
@@ -218,6 +218,8 @@ async function main() {
 	let prev_regl_time = 0
 	const particles = new SysRenderParticles(regl, resources);
 	particles.init()
+	const cloud = new SysRenderParticlesCloud(regl, resources);
+	cloud.init()
 
 	regl.frame((frame) => {
 
@@ -302,8 +304,8 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
-		particles.render(frame_info);
-		
+		//particles.render(frame_info);
+		cloud.render(frame_info);
 
 
 		debug_text.textContent = `
