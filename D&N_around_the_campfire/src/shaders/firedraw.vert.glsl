@@ -7,6 +7,13 @@ uniform mat4 mat_mvp;
 varying vec3 fragColor;
   // values that are the same for all vertices
 uniform float pointWidth;
+uniform float u_time;
+
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 void main() {
 		// read in position from the state texture
   vec3 position = texture2D(particleState, particleTextureIndex).xyz;
@@ -16,6 +23,7 @@ void main() {
 		// gl_Position is a special variable that holds the position of a vertex
   gl_Position = mat_mvp * vec4(position, 1.0);
 
-		// update the size of a particles based on the prop pointWidth
-  gl_PointSize = pointWidth;
+  // update the size of a particles based on the prop pointWidth and a random value done with noise
+  // to make it look more realistic
+  gl_PointSize = (rand(particleTextureIndex) + 1. ) * 10.;
 }

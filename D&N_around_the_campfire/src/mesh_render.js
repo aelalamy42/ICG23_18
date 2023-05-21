@@ -1,7 +1,8 @@
 import { vec2, vec3, vec4, mat3, mat4 } from "../lib/gl-matrix_3.3.0/esm/index.js"
-import { cross, length, dot } from "../lib/gl-matrix_3.3.0/esm/vec3.js";
+import { cross, length, dot, random } from "../lib/gl-matrix_3.3.0/esm/vec3.js";
 import { mat4_matmul_many } from "./icg_math.js"
 import { EnvironmentCapture } from "./env_capture.js"
+import { RANDOM } from "../lib/gl-matrix_3.3.0/esm/common.js";
 
 /*
 	Draw meshes with a simple pipeline
@@ -396,9 +397,9 @@ export class SysRenderParticles extends SysRenderMeshes {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,3.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 64;
+		const sqrtNumParticles = 10;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 10;
+		const pointWidth = Math.random() * 5 + 0.5;
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -439,6 +440,46 @@ export class SysRenderParticles extends SysRenderMeshes {
 			nextParticleState = tmp;
 		}
 
+		// get random number in range [base - variance, base + variance]
+		function rand (base, variance) {
+			if (base.length === 3) { // random vector
+	  		return [
+				base[0] + variance[0] * (Math.random() * 2.0 - 1.0),
+				base[1] + variance[1] * (Math.random() * 2.0 - 1.0),
+				base[2] + variance[2] * (Math.random() * 2.0 - 1.0)
+	  		]
+			} else { // random scalar.
+	  			return base + variance * (Math.random() * 2.0 - 1.0)
+			}
+  		}
+
+		function lerp (a, b, t) {
+			if (a.length === 4) {
+			  return [
+				a[0] * (1.0 - t) + b[0] * t,
+				a[1] * (1.0 - t) + b[1] * t,
+				a[2] * (1.0 - t) + b[2] * t,
+				a[3] * (1.0 - t) + b[3] * t
+			  ]
+			} else {
+			  return a * (1.0 - t) + b * t
+			}
+		}
+		  
+
+		// create a regl framebuffer holding the initial state of each particle
+		var particles = [];
+		for (var i = 0; i < numParticles; i++) {
+			var l = rand(3.5, 1.5)
+			particles.push({
+			  lifetime: l,
+			  age: l + 1.0, // set age so that the particle is initialized in the first iteration
+			  velocity: [0.0, 0.0, 0.0],
+			  scale: 1.0,
+			  color: [0.0, 0.0, 0.0, 0.0]
+			})
+		  }
+		
 
 		// create array of indices into the particle texture for each particle
 		const particleTextureIndex = [];
@@ -447,6 +488,50 @@ export class SysRenderParticles extends SysRenderMeshes {
 				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
 			}
 		}
+
+		function runParticleFireSystem(){
+			var delta = 0.02 // delta time.
+			for (var i = 0; i < numParticles; i++) {
+    			var p = particles[i]
+
+    			// respawn the particle if it dies.
+    			if (p.age > p.lifetime) {
+      			var minV = 0.886
+      			var maxV = minV + 0.2
+      			var range = 0.305
+
+      			p.velocity[0] = -range + Math.random() * 2.0 * range
+      			p.velocity[1] = minV + Math.random() * (maxV - minV)
+      			p.velocity[2] = -range + Math.random() * 2.0 * range
+
+      			p.startScale = rand(0.70, 0.38)
+      			p.endScale = rand(0.22, 0.16)
+
+      			p.startColor = [1.0, 0.2, 0.0, 0.6]
+      			p.endColor = [1.0, 0.2, 0.0, 0.0]
+
+      			var s = 0.05
+      			p.translation = rand([0.0, 0.0, 0.0], [s, s, s])
+
+      			p.age = 0.0
+    			}
+
+    		var t = p.age / p.lifetime // the lerp factor.
+
+    		// update particle properties.
+    		vec3.scaleAndAdd(p.translation, p.translation, p.velocity, delta)
+    		p.scale = lerp(p.startScale, p.endScale, t)
+    		p.color = lerp(p.startColor, p.endColor, t)
+    		p.age += delta
+  			}
+		}
+
+		// warm up the particle system by running it for a couple of iterations.
+		// (otherwise, we get an ugly "puff of fire" in the beginning)
+		for (i = 0; i < 300; i++) {
+			runParticleFireSystem()
+  		}	
+
 		const shader_name = this.constructor.shader_name
 
 		console.log('Compiling shaders: ', shader_name)
