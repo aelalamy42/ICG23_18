@@ -678,3 +678,181 @@ export class SysRenderParticles extends SysRenderMeshes {
 	}
 
 }
+
+export class SysRenderParticlesCloud extends SysRenderMeshes {
+	static shader_name = 'cloud'
+
+	init_pipeline(regl) {
+		this.mat_mvp = mat4.create();
+		this.mat_model_to_world = mat4.create();
+		this.mat_scale = mat4.fromScaling(mat4.create(), [20.,20.,20.]);
+		// initial particles state and texture for buffer
+		// multiply by 4 for R G B A
+		const sqrtNumParticles = 16;
+		const numParticles = sqrtNumParticles * sqrtNumParticles;
+		const pointWidth = 500;//TODO :try more possibilites
+		const initialParticleState = new Float32Array(numParticles * 4);
+		for (let i = 0; i < numParticles; ++i) {
+			const r = Math.sqrt(Math.random());
+			const theta = Math.random() * 2 * Math.PI;
+			// store x then y and then leave 2 spots empty
+			initialParticleState[i * 4] = r * Math.cos(theta); // x position
+			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
+			initialParticleState[i * 4 + 2] = 0.;
+		}
+
+		// create a regl framebuffer holding the initial particle state
+		function createInitialParticleBuffer(initialParticleState) {
+			// create a texture where R holds particle X and G holds particle Y position
+			const initialTexture = regl.texture({
+				data: initialParticleState,
+				shape: [sqrtNumParticles, sqrtNumParticles, 4],
+				type: 'float'
+			});
+
+			// create a frame buffer using the state as the colored texture
+			return regl.framebuffer({
+				color: initialTexture,
+				depth: false,
+				stencil: false,
+			});
+		}
+
+		// initialize particle states
+		let prevParticleState = createInitialParticleBuffer(initialParticleState);
+		let currParticleState = createInitialParticleBuffer(initialParticleState);
+		let nextParticleState = createInitialParticleBuffer(initialParticleState);
+
+		// cycle which buffer is being pointed to by the state variables
+		function cycleParticleStates() {
+			const tmp = prevParticleState;
+			prevParticleState = currParticleState;
+			currParticleState = nextParticleState;
+			nextParticleState = tmp;
+		}
+
+
+		// create array of indices into the particle texture for each particle
+		const particleTextureIndex = [];
+		for (let i = 0; i < sqrtNumParticles; i++) {
+			for (let j = 0; j < sqrtNumParticles; j++) {
+				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
+			}
+		}
+		const shader_name = this.constructor.shader_name
+
+		console.log('Compiling shaders: ', shader_name)
+		const drawParticles = regl({
+			attributes: {
+				particleTextureIndex,
+			},
+
+			primitive: 'points',
+			count: numParticles,
+
+			depth: {
+				enable: true,
+				mask: false,
+			},
+
+			// Uniforms: global data available to the shader
+			uniforms: {
+				pointWidth,
+				particleState: () => currParticleState, // important to use a function here. Otherwise it would cache and not use the newest buffer.
+				mat_mvp: regl.prop('mat_mvp'),
+				u_time: regl.prop('u_time'),
+			},
+
+			blend: {
+				enable: true,
+				func: {
+					src: 'src alpha',
+					dst: 'one minus src alpha',
+				},
+				equation: {
+					rgb: 'add',
+					alpha: 'add'
+				},
+				color: [0., 0., 0., 0.],
+			},
+
+			vert: this.get_resource_checked(`${shader_name}draw.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}draw.frag.glsl`),
+		})
+
+		const updateParticles = regl({
+			//IMPORTANT : Write to a framebuffer, not to the screen!!!
+			framebuffer: () => nextParticleState,
+
+			attributes: {
+				position: [
+					-4, 0,
+					4, 4,
+					4, -4
+				]
+			},
+
+			// pass in previous states to work from
+			uniforms: {
+				// must use a function so it gets updated each call
+				currParticleState: () => currParticleState,
+				prevParticleState: () => prevParticleState,
+				u_time: regl.prop('u_time'),
+			},
+
+			// it's a triangle - 3 vertices
+			count: 3,
+
+			vert: this.get_resource_checked(`${shader_name}update.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
+		});
+
+		this.pipeline = (frame_info) => {
+
+			// draw the points using our created regl func
+			drawParticles({
+				mat_mvp: this.mat_mvp,
+				u_time : frame_info.sim_time,
+			});
+
+			// update position of particles in state buffers
+			updateParticles({
+				u_time : frame_info.sim_time,
+			});
+
+			// update pointers for next, current, and previous particle states
+			cycleParticleStates();
+
+		};
+	}
+
+	calculate_model_matrix({camera_position}) {
+
+		// Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
+		mat4.identity(this.mat_model_to_world);
+		const nb = vec3.fromValues(0.,0.,1.);
+		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
+		const rotation_axis = cross(vec3.create(), nb, camera_position);
+		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
+		const translation = mat4.fromTranslation(mat4.create(), [0., 0., -0.45]);
+		//console.error(camera_position);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
+
+	}
+
+	render(frame_info) {
+		const { mat_projection, mat_view } = frame_info
+		this.calculate_model_matrix(frame_info);
+		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
+		this.pipeline(frame_info);
+	}
+
+	check_scene(scene_info) {
+		// check if all meshes are loaded
+		for (const actor of scene_info.actors) {
+			if (actor.mesh) {
+				this.get_resource_checked(actor.material.texture)
+			}
+		}
+	}
+}
