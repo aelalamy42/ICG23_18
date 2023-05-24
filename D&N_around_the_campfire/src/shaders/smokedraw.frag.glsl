@@ -6,6 +6,7 @@ uniform float u_time;
 // this value is populated by the vertex shader
 varying vec3 fragColor;
 varying vec2 idx;
+varying float alpha_factor;
   #define NUM_GRADIENTS 12
 
 // -- Gradient table --
@@ -101,7 +102,7 @@ void main() {
     float d = dot(cxy, cxy);
     float g = 2. * exp(-3. * d) - 1.2;
     float alpha = g + 0.5 * perlin_fbm((gl_PointCoord + vec2(0.05*u_time) + 3. * idx));
-    vec3 color = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(idx));
+    vec3 color = mix(vec3(0.675, 0.651, 0.588), vec3(0.212, 0.196,0.196), length(idx));
     // gl_FragColor is a special variable that holds the color of a pixel
-    gl_FragColor = vec4(color, alpha);
+    gl_FragColor = vec4(color, alpha_factor * alpha);
 }

@@ -197,6 +197,8 @@ export async function load_resources(regl) {
 		'firedraw.vert.glsl', 'firedraw.frag.glsl',
 		'cloudupdate.vert.glsl', 'cloudupdate.frag.glsl',
 		'clouddraw.vert.glsl', 'clouddraw.frag.glsl',
+		'smokeupdate.vert.glsl', 'smokeupdate.frag.glsl',
+		'smokedraw.vert.glsl', 'smokedraw.frag.glsl',
 	]
 	for(const shader_name of shaders_to_load) {
 		resource_promises[shader_name] = load_text(`./src/shaders/${shader_name}`)
