@@ -2,12 +2,11 @@
 precision mediump float;
 attribute vec2 particleTextureIndex;
 uniform sampler2D particleState;
+uniform sampler2D particleLifetime;
 uniform mat4 mat_mvp;
   // variables to send to the fragment shader
 varying vec3 fragColor;
-  // values that are the same for all vertices
-uniform float pointWidth;
-uniform float u_time;
+varying float alpha_factor;
 varying vec2 idx;
 
 float rand(vec2 co)
@@ -16,6 +15,17 @@ float rand(vec2 co)
 }
 
 void main() {
+  // read in position from the state texture
+    vec4 state = texture2D(particleState, particleTextureIndex);
+    float lifetime = texture2D(particleLifetime, particleTextureIndex).x;
+	// copy color over to fragment shader
+    fragColor = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(particleTextureIndex));//TODO: enlever ca
+    idx = particleTextureIndex;
+	// scale to normalized device coordinates
+	// gl_Position is a special variable that holds the position of a vertex
+    float x = 1./8. * (lifetime - state.w);
+    alpha_factor = 4.* x*x - 2.*x*x*x;
+
 		// read in position from the state texture
   vec3 position = texture2D(particleState, particleTextureIndex).xyz;
 		// copy color over to fragment shader

@@ -396,9 +396,9 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,3.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 75;
+		const sqrtNumParticles = 55;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = Math.random() * 5 + 0.5;
+		const pointWidth = Math.random() * 2 + 0.5;
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -407,6 +407,12 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 			initialParticleState[i * 4] = r * Math.cos(theta); // x position
 			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
 			initialParticleState[i * 4 + 2] = 0.;
+		}
+
+		const initialParticleLifetime = new Float32Array(numParticles * 4);
+		for (let i = 0; i < numParticles; ++i) {
+			initialParticleLifetime[i * 4] = Math.random() * 7 + 1; // lifetime
+			initialParticleLifetime[i * 4 + 1] = Math.random() * 8; // start time
 		}
 
 		// create a regl framebuffer holding the initial particle state
@@ -431,6 +437,9 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 		let currParticleState = createInitialParticleBuffer(initialParticleState);
 		let nextParticleState = createInitialParticleBuffer(initialParticleState);
 
+		// initialize particle ages
+		let particleAge = createInitialParticleBuffer(initialParticleState);
+
 		// cycle which buffer is being pointed to by the state variables
 		function cycleParticleStates() {
 			const tmp = prevParticleState;
@@ -446,7 +455,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
 			}
 		}
-
+		/** 
 		// NE MARCHE PAS  
 		// get random number in range [base - variance, base + variance]
 		function rand (base, variance) {
@@ -473,7 +482,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 			  return a * (1.0 - t) + b * t
 			}
 		}
-		  
+		
 
 		// create a regl framebuffer holding the initial state of each particle
 		var particles = [];
@@ -530,7 +539,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 		// (otherwise, we get an ugly "puff of fire" in the beginning)
 		for (i = 0; i < 300; i++) {
 			runParticleFireSystem()
-  		}	
+  		}	*/
 
 		const shader_name = this.constructor.shader_name
 
@@ -552,6 +561,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 			uniforms: {
 				pointWidth,
 				particleState: () => currParticleState, // important to use a function here. Otherwise it would cache and not use the newest buffer.
+				particleLifetime: particleAge,
 				mat_mvp: regl.prop('mat_mvp'),
 				u_time: regl.prop('u_time'),
 			},
@@ -590,6 +600,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 				// must use a function so it gets updated each call
 				currParticleState: () => currParticleState,
 				prevParticleState: () => prevParticleState,
+				particleLifetime: particleAge,
 				u_time: regl.prop('u_time'),
 			},
 

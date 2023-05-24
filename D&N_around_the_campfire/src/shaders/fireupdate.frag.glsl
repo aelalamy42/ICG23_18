@@ -3,6 +3,8 @@ precision mediump float;
   // states to read from to get velocity
 uniform sampler2D currParticleState;
 uniform sampler2D prevParticleState;
+uniform sampler2D particleLifetime;
+uniform float u_time;
 
   // index into the texture state
 varying vec2 particleTextureIndex;
@@ -11,7 +13,10 @@ varying vec2 particleTextureIndex;
 float rand(vec3 co) {
     return fract(sin(dot(co.xyz, vec3(12.9898, 78.233, 43.4795))) * 43758.5453);
 }
-uniform float u_time;
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
 const float freq_multiplier = 2.17;
 const float ampl_multiplier = 0.5;
@@ -99,9 +104,9 @@ float overlay(in float a, in float b) {
 
 
 void main() {
-    vec3 currPosition =  texture2D(currParticleState, particleTextureIndex).xyz;
-    vec3 prevPosition =  texture2D(prevParticleState, particleTextureIndex).xyz;
-    vec3 velocity = currPosition - prevPosition;
+    vec4 currPosition =  texture2D(currParticleState, particleTextureIndex);
+    vec4 prevPosition =  texture2D(prevParticleState, particleTextureIndex);
+    vec4 velocity = currPosition - prevPosition;
     vec2 st = velocity.xy;
     float t = u_time * 0.1;
     vec2 noiseOffset = vec2(turbulence(st), t);
@@ -113,12 +118,12 @@ void main() {
     noiseVal += perlin_noise((noisePos + vec2(0.25, 0.25)) * 20.0) * 0.25;
     noiseVal += perlin_noise((noisePos + vec2(-0.25, 0.5)) * 40.0) * 0.125;
     
-    vec3 position = currPosition;
-    if (position.z > 5.) {
-        position = currPosition - vec3(0., 0.,  0.5 * noiseVal); // TODO à revoir 
-    } else {
-        position = currPosition + vec3(0., 0.,  0.1 * noiseVal);
-    }
+    vec3 position = currPosition.xyz;
+    //if (position.z > 5.) {
+    //    position = position - vec3(0., 0.,  0.5 * noiseVal); // TODO à revoir 
+    //} else {
+    //    position = position + vec3(0., 0.,  0.1 * noiseVal);
+    //}
     // Keep the particles within the specified range on the Z-axis
     position.z = clamp(position.z, 0.0, 5.0);
     // Vary the position on the X and Y axes using Perlin noise
@@ -131,5 +136,20 @@ void main() {
     position.x = overlay(position.x, grady);
     position.y = overlay(position.y, gradx);
 
-    gl_FragColor = vec4(position, 1);
+    float age = currPosition.w + 0.1;
+    float nextZ = age;
+    vec4 lifetime = texture2D(particleLifetime, particleTextureIndex);
+    lifetime.x = lifetime.x + (rand(particleTextureIndex) + 1. ) * 1.;
+    float start_time = lifetime.y + (rand(particleTextureIndex) + 1. ) * 2.;
+    if (age > lifetime.x){
+      nextZ = 0.;
+      age = 0.;
+    }
+    if(u_time < start_time){
+      gl_FragColor = vec4(currPosition);
+    } else {
+      position.z = nextZ;
+		// we store the new position as the color in this frame buffer
+      gl_FragColor = vec4(position, age);
+    }
 }

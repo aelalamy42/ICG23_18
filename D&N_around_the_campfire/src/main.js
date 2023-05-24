@@ -306,12 +306,9 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
-<<<<<<< HEAD
-		particles.render(frame_info);
-=======
+		fire.render(frame_info);
 		//particles.render(frame_info);
-		smoke.render(frame_info);
->>>>>>> 9f4d9c17d5e4807c472416304e506c1394bd543e
+		//smoke.render(frame_info);
 		cloud.render(frame_info);
 
 

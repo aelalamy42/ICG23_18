@@ -3,12 +3,18 @@ precision mediump float;
   // this value is populated by the vertex shader
 uniform float u_time;
 varying vec3 fragColor;
+uniform sampler2D particleLifetime;
+uniform sampler2D particleState;
 varying vec2 idx;
+varying float alpha_factor;
   #define NUM_GRADIENTS 12
 
   //sum = pixel(x+1, y) + pixel(x-1, y) + pixel(x, y+1) + pixel(x, y-1)
   //pixel(x, y - 1) = (sum / 4) - cooling_amount
-
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
   // -- Gradient table --
 vec2 gradients(int i) {
     if(i == 0)
@@ -106,6 +112,24 @@ void main() {
   //float alpha = abs(sin(u_time)) * (g + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx)) + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx);
   float alpha = (atan(5. * sin(u_time), 1.) / atan(5., 1.) + 1.)/ 2. * (g + 0.5 * perlin_fbm((gl_PointCoord + 3. * idx)));
   vec3 color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), (alpha + 1.)/2.);
-	gl_FragColor = vec4(color, alpha);
+	
+  vec4 state = texture2D(particleState, idx);
+  vec4 lifetime = texture2D(particleLifetime, idx);
+	float age = state.w;
+  float start_time = lifetime.y + (rand(idx) + 1. ) * 2.;
+  if (age < start_time / 3.){
+    color = vec3(1.0, 0.98, 0.51);
+  }else if (age < start_time / 2.){
+    color = vec3(1.0, 0.92, 0.0);
+  } else if (age < start_time * 2. / 3. ) {
+    color = mix( vec3(1.0, 0.53, 0.0), vec3(1.0, 0.95, 0.57), -(alpha + 1.)/2.);
+  } else if (age < start_time ) {
+    color = vec3(0.88, 0.2, 0.17);
+    alpha = alpha * 0.5;
+  } else {
+    color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), (alpha + 1.)/2.);
+    alpha = alpha * 0.5;
+  }
+  gl_FragColor = vec4(color, alpha * alpha_factor);
   
 }
