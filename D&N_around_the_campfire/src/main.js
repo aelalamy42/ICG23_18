@@ -163,14 +163,16 @@ async function main() {
 		Camera
 	---------------------------------------------------------------*/
 	const cam_distance_base = 15.
+	const rotation_speed = 0.05;
 
 	function update_cam_transform(frame_info) {
-		const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		//const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
+		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info;
 
-		/* TODO GL3.0
-		Copy turntable camera from GL2
-		*/
 		const r = cam_distance_base * cam_distance_factor;
+
+		const time = performance.now() / 1000; // Convert milliseconds to seconds
+  		const cam_angle_z_time = time * rotation_speed;
 
 		// Example camera matrix, looking along forward-X, edit this
 		const look_at = mat4.lookAt(mat4.create(), 
@@ -178,8 +180,11 @@ async function main() {
 			[0, 0, 0], // view target point
 			[0, 0, 1], // up vector
 		)
-		const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z);
+		//const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z);
 		const yRotate = mat4.fromYRotation(mat4.create(), cam_angle_y);
+		const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z + cam_angle_z_time);
+		// Store the combined transform in mat_turntable
+		mat4_matmul_many(frame_info.mat_turntable, look_at, zRotate);
 		// Store the combined transform in mat_turntable
 		// frame_info.mat_turntable = A * B * ...
 		mat4_matmul_many(frame_info.mat_turntable, look_at , yRotate, zRotate) // edit this
@@ -187,6 +192,13 @@ async function main() {
 
 	update_cam_transform(frame_info)
 
+	function animate_camera() {
+		update_cam_transform(frame_info);
+		requestAnimationFrame(animate_camera);
+	  }
+	animate_camera();
+
+	
 	// Rotate camera position by dragging with the mouse
 	canvas_elem.addEventListener('mousemove', (event) => {
 		// if left or middle button is pressed
