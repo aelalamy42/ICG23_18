@@ -1,6 +1,9 @@
 // set the precision of floating point numbers
 precision mediump float;
-  // this value is populated by the vertex shader
+
+uniform float u_time;
+
+// this value is populated by the vertex shader
 varying vec3 fragColor;
 varying vec2 idx;
   #define NUM_GRADIENTS 12
@@ -96,8 +99,9 @@ float perlin_fbm(vec2 point) {
 void main() {
     vec2 cxy = gl_PointCoord - vec2(0.5);
     float d = dot(cxy, cxy);
-    float g = 2. * exp(-3. * d) - 1.;
-    float alpha = g + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx);
+    float g = 2. * exp(-3. * d) - 1.2;
+    float alpha = g + 0.5 * perlin_fbm((gl_PointCoord + vec2(0.05*u_time) + 3. * idx));
+    vec3 color = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(idx));
     // gl_FragColor is a special variable that holds the color of a pixel
-    gl_FragColor = vec4(fragColor, alpha);
+    gl_FragColor = vec4(color, alpha);
 }
