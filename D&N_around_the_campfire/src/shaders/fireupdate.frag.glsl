@@ -131,10 +131,4 @@ void main() {
     position.y = overlay(position.y, gradx);
 
     gl_FragColor = vec4(position, 1);
-
-    //vec3 velocity = currPosition - prevPosition;
-    //vec3 random = 0.5 - vec3(rand(currPosition), rand(10.0 * currPosition), rand(100.0 * currPosition));
-    //vec3 position = currPosition + (0.95 * velocity) + (0.0005 * random);
-		// we store the new position as the color in this frame buffer
-    //gl_FragColor = vec4(position, 1);
 }
