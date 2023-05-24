@@ -397,7 +397,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,3.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 10;
+		const sqrtNumParticles = 75;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
 		const pointWidth = Math.random() * 5 + 0.5;
 		const initialParticleState = new Float32Array(numParticles * 4);
@@ -440,6 +440,15 @@ export class SysRenderParticles extends SysRenderMeshes {
 			nextParticleState = tmp;
 		}
 
+		// create array of indices into the particle texture for each particle
+		const particleTextureIndex = [];
+		for (let i = 0; i < sqrtNumParticles; i++) {
+			for (let j = 0; j < sqrtNumParticles; j++) {
+				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
+			}
+		}
+
+		// NE MARCHE PAS  
 		// get random number in range [base - variance, base + variance]
 		function rand (base, variance) {
 			if (base.length === 3) { // random vector
@@ -479,15 +488,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 			  color: [0.0, 0.0, 0.0, 0.0]
 			})
 		  }
-		
 
-		// create array of indices into the particle texture for each particle
-		const particleTextureIndex = [];
-		for (let i = 0; i < sqrtNumParticles; i++) {
-			for (let j = 0; j < sqrtNumParticles; j++) {
-				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
-			}
-		}
 
 		function runParticleFireSystem(){
 			var delta = 0.02 // delta time.
@@ -602,6 +603,7 @@ export class SysRenderParticles extends SysRenderMeshes {
 
 		this.pipeline = (frame_info) => {
 
+			//runParticleFireSystem();
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
@@ -617,6 +619,108 @@ export class SysRenderParticles extends SysRenderMeshes {
 			cycleParticleStates();
 
 		};
+
+		/**
+		// Define a function to draw a fullscreen quad
+		function drawFullscreenQuad() {
+			const attributes = {
+			position: regl.buffer([
+				[-1, -1], [1, -1], [-1, 1], [-1, 1], [1, -1], [1, 1]
+			]),
+			};
+		
+			const vertexShader = `
+			precision highp float;
+			attribute vec2 position;
+			varying vec2 uv;
+		
+			void main() {
+				uv = 0.5 * (position + 1.0);
+				gl_Position = vec4(position, 0, 1);
+			}
+			`;
+		
+			const fragmentShader = `
+			precision highp float;
+			uniform sampler2D texture;
+			varying vec2 uv;
+		
+			void main() {
+				gl_FragColor = texture2D(texture, uv);
+			}
+			`;
+		
+			const drawCommand = regl({
+			vert: vertexShader,
+			frag: fragmentShader,
+			attributes: attributes,
+			uniforms: {
+				texture: regl.prop('texture'),
+			},
+			count: 6,
+			});
+		
+			return function (texture) {
+				drawCommand({ texture });
+			};
+		}
+
+		function renderBloomEffect() {
+			const bloomPass = regl({
+				frag: `
+				  precision highp float;
+			  
+				  uniform sampler2D image;
+				  uniform float bloomThreshold;
+			  
+				  varying vec2 uv;
+			  
+				  void main() {
+					// Sample the color from the previous pass
+					vec4 color = texture2D(image, uv);
+			  
+					// Apply the bloom effect
+					if (color.rgb.r > bloomThreshold || color.rgb.g > bloomThreshold || color.rgb.b > bloomThreshold) {
+					  // Add the bright color to the original color
+					  color += texture2D(image, uv);
+					}
+			  
+					// Output the final color
+					gl_FragColor = color;
+				  }
+				`,
+				uniforms: {
+				  image: regl.prop('image'), // Texture containing the rendered image from the first pass
+				  bloomThreshold: regl.prop('bloomThreshold'), // Threshold for determining the bright pixels
+				},
+			});
+		}
+
+		const drawQuad = drawFullscreenQuad();
+
+		// Step 4: Perform the second rendering pass with bloom effect
+		regl.frame(() => {
+			// Create a framebuffer object and automatically match the dimensions to the current viewport or canvas
+			const framebuffer = regl.framebuffer();
+		  
+			// Bind the framebuffer
+			framebuffer.use(() => {
+			  // Render the second pass with bloom effect
+			  renderBloomEffect({
+				image: framebuffer.color[0], // Use the color buffer of the framebuffer as the input texture
+				bloomThreshold: 0.8, // Adjust the threshold value to control the intensity of the bloom effect
+			  });
+		  
+			  // Render the final result to the screen
+			  regl.clear({
+				color: [0, 0, 0, 1],
+				depth: 1,
+			  });
+		  
+			  drawQuad(framebuffer.color[0]);
+			});
+		  });*/
+
 	}
 
 	calculate_model_matrix({camera_position}) {

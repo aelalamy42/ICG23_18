@@ -3,6 +3,7 @@ precision mediump float;
   // states to read from to get velocity
 uniform sampler2D currParticleState;
 uniform sampler2D prevParticleState;
+
   // index into the texture state
 varying vec2 particleTextureIndex;
   // seemingly standard 1-liner random function

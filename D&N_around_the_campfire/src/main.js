@@ -304,7 +304,7 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
-		//particles.render(frame_info);
+		particles.render(frame_info);
 		cloud.render(frame_info);
 
 
