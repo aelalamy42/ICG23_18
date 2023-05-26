@@ -4,6 +4,7 @@ attribute vec2 particleTextureIndex;
 uniform sampler2D particleState;
 uniform sampler2D particleLifetime;
 uniform mat4 mat_mvp;
+uniform float pointWidthFactor;
   // variables to send to the fragment shader
 varying vec3 fragColor;
 varying float alpha_factor;
@@ -37,5 +38,5 @@ void main() {
 
   // update the size of a particles based on the prop pointWidth and a random value done with noise
   // to make it look more realistic
-  gl_PointSize = (rand(particleTextureIndex) + 1. ) * 40.;
+  gl_PointSize = (rand(particleTextureIndex) + 1. ) * 65. * pointWidthFactor;
 }
