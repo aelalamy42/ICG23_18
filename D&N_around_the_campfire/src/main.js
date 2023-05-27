@@ -362,9 +362,10 @@ async function main() {
 		fire.render(frame_info, cinema_mode);
 		fireflies.render(frame_info, cinema_mode);
 		//particles.render(frame_info);
-
-		debug_text.textContent = `
-`;
+		//smoke.render(frame_info);
+		cloud.render(frame_info);
+		fireflies.render(frame_info);
+		debug_text.textContent = ``;
 	})
 }
 
