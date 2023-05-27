@@ -324,13 +324,9 @@ async function main() {
 		smoke.render(frame_info);
 		fire.render(frame_info);
 		//particles.render(frame_info);
-<<<<<<< HEAD
 		//smoke.render(frame_info);
 		cloud.render(frame_info);
 		fireflies.render(frame_info);
-=======
->>>>>>> 088c4e0d0baa97c5141b64e80108a073ce0b6ba7
-
 
 		debug_text.textContent = `
 `;
