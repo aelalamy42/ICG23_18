@@ -1,4 +1,4 @@
-# Blender 3.4.1 MTL File: 'Compgraph(2).blend'
+# Blender 3.4.1 MTL File: 'Compgraph(3).blend'
 # www.blender.org
 
 newmtl Material.001
@@ -509,4 +509,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd /home/akelalamy/COMPUTERGRAPHICS/ICG23_18/D&N_around_the_campfire/textures/Merged_document.png
+map_Kd /home/akelalamy/Downloads/Downloads/Merged_document.png

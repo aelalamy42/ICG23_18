@@ -101,7 +101,10 @@ void main() {
     float d = dot(cxy, cxy);
     float g = 2. * exp(-3. * d) - 1.2;
     float alpha = g + 0.5 * perlin_fbm((gl_PointCoord + vec2(0.05*u_time) + 3. * idx));
-    vec3 color = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(idx));
+    vec3 day_color = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(idx));
+    vec3 night_color = mix( vec3(0.776, 0.78, 1.), vec3(0.043, 0.13, 0.286), length(idx));
+    float night_to_day_alpha = (sin(u_time) + 1.) /2.;
+    vec3 color = mix(day_color, night_color, night_to_day_alpha);
     // gl_FragColor is a special variable that holds the color of a pixel
     gl_FragColor = vec4(color, alpha);
 }

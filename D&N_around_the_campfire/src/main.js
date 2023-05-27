@@ -89,7 +89,7 @@ async function main() {
 		frame_info.cam_angle_z = -2.731681469282041
 		frame_info.cam_angle_y = 
 		-0.4785987755982989
-		frame_info.cam_distance_factor = 1.4693280768000003
+		frame_info.cam_distance_factor = 4.4693280768000003
 		
 		mat4.set(frame_info.mat_turntable, 0.3985278716916164, -0.42238331447052535, 0.8141055651092455, 0, 0.9171562219627312, 0.18353636962060468, -0.3537497216133721, 0, 0, 0.8876411080405088, 0.4605358436827886, 0, 0, 0, -22.039921152000005, 1)
 	}/*
@@ -215,7 +215,7 @@ async function main() {
 		const factor_mul_base = 1.08
 		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
 		frame_info.cam_distance_factor *= factor_mul
-		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 4))
+		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 5))
 		// console.log('wheel', event.deltaY, event.deltaMode);
 		update_cam_transform(frame_info)
 	})
@@ -306,8 +306,8 @@ async function main() {
 
 		} else */
 		//if (render_mode == 'Shadows') {			
-			const sky_info =  scene_info.actors.slice(3)
-			const terrain_info = scene_info.actors.slice(0,3)
+			const sky_info =  scene_info.actors.slice(4)
+			const terrain_info = scene_info.actors.slice(0,4)
 			sys_render_light.render(frame_info, {
 				sim_time: scene_info.sim_time,
 				actors: terrain_info,
@@ -320,11 +320,16 @@ async function main() {
 				sys_render_light.env_capture.visualize()
 			}
 		//}
+		cloud.render(frame_info);
+		smoke.render(frame_info);
 		fire.render(frame_info);
 		//particles.render(frame_info);
+<<<<<<< HEAD
 		//smoke.render(frame_info);
 		cloud.render(frame_info);
 		fireflies.render(frame_info);
+=======
+>>>>>>> 088c4e0d0baa97c5141b64e80108a073ce0b6ba7
 
 
 		debug_text.textContent = `
