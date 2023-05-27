@@ -89,7 +89,7 @@ async function main() {
 		frame_info.cam_angle_z = -2.731681469282041
 		frame_info.cam_angle_y = 
 		-0.4785987755982989
-		frame_info.cam_distance_factor = 4.4693280768000003
+		frame_info.cam_distance_factor = 3.4693280768000003
 		
 		mat4.set(frame_info.mat_turntable, 0.3985278716916164, -0.42238331447052535, 0.8141055651092455, 0, 0.9171562219627312, 0.18353636962060468, -0.3537497216133721, 0, 0, 0.8876411080405088, 0.4605358436827886, 0, 0, 0, -22.039921152000005, 1)
 	}/*
@@ -167,24 +167,24 @@ async function main() {
 
 	function update_cam_transform(frame_info) {
 		//const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
-		const { cam_angle_z, cam_angle_y, cam_distance_factor } = frame_info;
+		const { cam_angle_z, cam_angle_y, cam_distance_factor, sim_time} = frame_info;
 
 		const r = cam_distance_base * cam_distance_factor;
 
-		const time = performance.now() / 1000; // Convert milliseconds to seconds
-  		const cam_angle_z_time = time * rotation_speed;
-
+		//const time = performance.now() / 1000; // Convert milliseconds to seconds
+  		const cam_angle_z_time = 10*sim_time * rotation_speed;
+		const target = [0, 5*Math.sin(sim_time), 0];
 		// Example camera matrix, looking along forward-X, edit this
 		const look_at = mat4.lookAt(mat4.create(), 
-			[-r, 0, 0], // camera position in world coord
-			[0, 0, 0], // view target point
+			[-r, 5*Math.sin(sim_time), 0], // camera position in world coord
+			target,//[0, 0, 0], // view target point
 			[0, 0, 1], // up vector
 		)
 		//const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z);
 		const yRotate = mat4.fromYRotation(mat4.create(), cam_angle_y);
 		const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z + cam_angle_z_time);
 		// Store the combined transform in mat_turntable
-		mat4_matmul_many(frame_info.mat_turntable, look_at, zRotate);
+		//mat4_matmul_many(frame_info.mat_turntable, look_at, zRotate);
 		// Store the combined transform in mat_turntable
 		// frame_info.mat_turntable = A * B * ...
 		mat4_matmul_many(frame_info.mat_turntable, look_at , yRotate, zRotate) // edit this
@@ -215,12 +215,12 @@ async function main() {
 		const factor_mul_base = 1.08
 		const factor_mul = (event.deltaY > 0) ? factor_mul_base : 1./factor_mul_base
 		frame_info.cam_distance_factor *= factor_mul
-		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 5))
+		frame_info.cam_distance_factor = Math.max(0.02, Math.min(frame_info.cam_distance_factor, 4))
 		// console.log('wheel', event.deltaY, event.deltaMode);
 		update_cam_transform(frame_info)
 	})
 
-	set_predef_view_1()
+	set_predef_view_1();
 	is_paused = false
 
 	/*---------------------------------------------------------------
@@ -239,12 +239,11 @@ async function main() {
 
 		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
 
-		
 		const scene_info = scenes.Shadows
 
 		if (! is_paused) {
 			const dt = frame.time - prev_regl_time
-			frame_info.sim_time += dt
+			frame_info.sim_time += dt / 1
 		}
 		scene_info.sim_time = frame_info.sim_time
 		prev_regl_time = frame.time

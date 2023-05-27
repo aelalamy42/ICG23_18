@@ -61,7 +61,7 @@ class SysRenderMeshes {
 			// Uniforms: global data available to the shader
 			uniforms: this.pipeline_uniforms(regl),
 
-			cull: { enable: true }, // don't draw back faces
+			//cull: { enable: true }, // don't draw back faces
 
 			vert: this.get_resource_checked(`${shader_name}.vert.glsl`),
 			frag: this.get_resource_checked(`${shader_name}.frag.glsl`),
@@ -742,8 +742,9 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
+		const translation = mat4.fromTranslation(mat4.create, [-0.1, 0., 1.]);
 		//console.error(camera_position);
-		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
 
 	}
 
@@ -800,10 +801,10 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 	init_pipeline(regl) {
 		this.mat_mvp = mat4.create();
 		this.mat_model_to_world = mat4.create();
-		this.mat_scale = mat4.fromScaling(mat4.create(), [30.,30.,30.]);
+		this.mat_scale = mat4.fromScaling(mat4.create(), [35.,35.,35.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 16;
+		const sqrtNumParticles = 45;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
 		this.pointWidth = 500;//TODO :try more possibilites
 		const initialParticleState = new Float32Array(numParticles * 4);
@@ -813,7 +814,7 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 			// store x then y and then leave 2 spots empty
 			initialParticleState[i * 4] = r * Math.cos(theta); // x position
 			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
-			initialParticleState[i * 4 + 2] = 0.;
+			initialParticleState[i * 4 + 2] = Math.random()*0.01;
 		}
 
 		// create a regl framebuffer holding the initial particle state
@@ -979,12 +980,12 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 	init_pipeline(regl) {
 		this.mat_mvp = mat4.create();
 		this.mat_model_to_world = mat4.create();
-		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,1]);
+		this.mat_scale = mat4.fromScaling(mat4.create(), [1.5,1.5,0.75]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
 		const sqrtNumParticles = 64;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 40; //TODO :try more possibilites
+		this.pointWidth = 40; //TODO :try more possibilites
 		const initialParticlePosition = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -1062,7 +1063,7 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 
 			// Uniforms: global data available to the shader
 			uniforms: {
-				pointWidth,
+				pointWidth: regl.prop('width_factor'),
 				particlePosition: () => currParticlePosition, // important to use a function here. Otherwise it would cache and not use the newest buffer.
 				particleLifetime: particleAge,
 				mat_mvp: regl.prop('mat_mvp'),
@@ -1118,7 +1119,8 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
-				u_time : frame_info.sim_time,
+				u_time : frame_info.sim_time ,
+				width_factor: 2 * this.pointWidth / frame_info.cam_distance_factor,
 			});
 
 			// update position of particles in state buffers
@@ -1147,7 +1149,7 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
-		const translation = mat4.fromTranslation(mat4.create(), [0., 0., 0.45]);
+		const translation = mat4.fromTranslation(mat4.create(), [-0.2, 0.1, 3.]);
 		//console.error(camera_position);
 		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
 
