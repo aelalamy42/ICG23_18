@@ -25,7 +25,7 @@ void main() {
 	// scale to normalized device coordinates
 	// gl_Position is a special variable that holds the position of a vertex
     float x = 1./8. * (lifetime - state.w);
-    alpha_factor = 4.* x*x - 2.*x*x*x;
+    alpha_factor = 5.* x*x - 2.*x*x*x;
 
 		// read in position from the state texture
   vec3 position = texture2D(particleState, particleTextureIndex).xyz;

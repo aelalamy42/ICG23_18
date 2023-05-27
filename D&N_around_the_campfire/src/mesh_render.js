@@ -396,7 +396,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,3.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 55;
+		const sqrtNumParticles = 65;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
 		this.pointWidth = 40;
 		const initialParticleState = new Float32Array(numParticles * 4);
@@ -407,11 +407,12 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 			initialParticleState[i * 4] = r * Math.cos(theta); // x position
 			initialParticleState[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
 			initialParticleState[i * 4 + 2] = 0.;
+			initialParticleState[i * 4 + 3] = 0.; // age 
 		}
 
 		const initialParticleLifetime = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
-			initialParticleLifetime[i * 4] = Math.random() * 7 + 1; // lifetime
+			initialParticleLifetime[i * 4] = Math.random() * 3 + 1; // lifetime
 			initialParticleLifetime[i * 4 + 1] = Math.random() * 8; // start time
 		}
 
@@ -455,91 +456,7 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
 			}
 		}
-		/** 
-		// NE MARCHE PAS  
-		// get random number in range [base - variance, base + variance]
-		function rand (base, variance) {
-			if (base.length === 3) { // random vector
-	  		return [
-				base[0] + variance[0] * (Math.random() * 2.0 - 1.0),
-				base[1] + variance[1] * (Math.random() * 2.0 - 1.0),
-				base[2] + variance[2] * (Math.random() * 2.0 - 1.0)
-	  		]
-			} else { // random scalar.
-	  			return base + variance * (Math.random() * 2.0 - 1.0)
-			}
-  		}
-
-		function lerp (a, b, t) {
-			if (a.length === 4) {
-			  return [
-				a[0] * (1.0 - t) + b[0] * t,
-				a[1] * (1.0 - t) + b[1] * t,
-				a[2] * (1.0 - t) + b[2] * t,
-				a[3] * (1.0 - t) + b[3] * t
-			  ]
-			} else {
-			  return a * (1.0 - t) + b * t
-			}
-		}
 		
-
-		// create a regl framebuffer holding the initial state of each particle
-		var particles = [];
-		for (var i = 0; i < numParticles; i++) {
-			var l = rand(3.5, 1.5)
-			particles.push({
-			  lifetime: l,
-			  age: l + 1.0, // set age so that the particle is initialized in the first iteration
-			  velocity: [0.0, 0.0, 0.0],
-			  scale: 1.0,
-			  color: [0.0, 0.0, 0.0, 0.0]
-			})
-		  }
-
-
-		function runParticleFireSystem(){
-			var delta = 0.02 // delta time.
-			for (var i = 0; i < numParticles; i++) {
-    			var p = particles[i]
-
-    			// respawn the particle if it dies.
-    			if (p.age > p.lifetime) {
-      			var minV = 0.886
-      			var maxV = minV + 0.2
-      			var range = 0.305
-
-      			p.velocity[0] = -range + Math.random() * 2.0 * range
-      			p.velocity[1] = minV + Math.random() * (maxV - minV)
-      			p.velocity[2] = -range + Math.random() * 2.0 * range
-
-      			p.startScale = rand(0.70, 0.38)
-      			p.endScale = rand(0.22, 0.16)
-
-      			p.startColor = [1.0, 0.2, 0.0, 0.6]
-      			p.endColor = [1.0, 0.2, 0.0, 0.0]
-
-      			var s = 0.05
-      			p.translation = rand([0.0, 0.0, 0.0], [s, s, s])
-
-      			p.age = 0.0
-    			}
-
-    		var t = p.age / p.lifetime // the lerp factor.
-
-    		// update particle properties.
-    		vec3.scaleAndAdd(p.translation, p.translation, p.velocity, delta)
-    		p.scale = lerp(p.startScale, p.endScale, t)
-    		p.color = lerp(p.startColor, p.endColor, t)
-    		p.age += delta
-  			}
-		}
-
-		// warm up the particle system by running it for a couple of iterations.
-		// (otherwise, we get an ugly "puff of fire" in the beginning)
-		for (i = 0; i < 300; i++) {
-			runParticleFireSystem()
-  		}	*/
 
 		const shader_name = this.constructor.shader_name
 
@@ -1133,11 +1050,6 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 
 		};
 
-		// run the particles for a bit before really showing it
-		/*for (let i = 0, j=0.; i < 50; i++, j+=0.1) {
-			this.pipeline({
-				sim_time: j});
-		}*/
 			
 	}
 
@@ -1152,6 +1064,199 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 		const translation = mat4.fromTranslation(mat4.create(), [-0.2, 0.1, 3.]);
 		//console.error(camera_position);
 		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
+
+	}
+
+	render(frame_info) {
+		const { mat_projection, mat_view } = frame_info
+		this.calculate_model_matrix(frame_info);
+		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
+		this.pipeline(frame_info);
+	}
+
+	check_scene(scene_info) {
+		// check if all meshes are loaded
+		for (const actor of scene_info.actors) {
+			if (actor.mesh) {
+				this.get_resource_checked(actor.material.texture)
+			}
+		}
+	}
+}
+
+
+export class SysRenderParticlesFireflies extends SysRenderMeshes {
+	static shader_name = 'fireflies'
+
+	init_pipeline(regl) {
+		this.mat_mvp = mat4.create();
+		this.mat_model_to_world = mat4.create();
+		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,1]);
+		// initial particles state and texture for buffer
+		// multiply by 4 for R G B A
+		const sqrtNumParticles = 5;
+		const numParticles = sqrtNumParticles * sqrtNumParticles;
+		const pointWidth = 15; //TODO :try more possibilites
+		const initialParticlePosition = new Float32Array(numParticles * 4);
+		for (let i = 0; i < numParticles; ++i) {
+			const r = Math.sqrt(Math.random());
+			const theta = Math.random() * 2 * Math.PI;
+			// store x then y and then leave 2 spots empty
+			initialParticlePosition[i * 4] = r * Math.cos(theta); // x position
+			initialParticlePosition[i * 4 + 1] = r * Math.sin(theta);//2 * Math.random() - 1;// y position
+			initialParticlePosition[i * 4 + 2] = 0.;
+			initialParticlePosition[i * 4 + 3] = 0.; // age
+		}
+
+		const initialParticleState = new Float32Array(numParticles * 4);
+		for (let i = 0; i < numParticles; ++i) {
+			initialParticleState[i * 4] = Math.random() * 7 + 1; // lifetime
+			initialParticleState[i * 4 + 1] = Math.random() * 8; // start time
+		}
+
+		// create a regl framebuffer holding the initial particle state
+		function createInitialParticleBuffer(initialParticleState) {
+			// create a texture where R holds particle X and G holds particle Y position
+			const initialTexture = regl.texture({
+				data: initialParticleState,
+				shape: [sqrtNumParticles, sqrtNumParticles, 4],
+				type: 'float'
+			});
+
+			// create a frame buffer using the state as the colored texture
+			return regl.framebuffer({
+				color: initialTexture,
+				depth: false,
+				stencil: false,
+			});
+		}
+
+		// initialize particle positions
+		let prevParticlePosition = createInitialParticleBuffer(initialParticlePosition);
+		let currParticlePosition = createInitialParticleBuffer(initialParticlePosition);
+		let nextParticlePosition = createInitialParticleBuffer(initialParticlePosition);
+
+		// initialize particle ages
+		let particleAge = createInitialParticleBuffer(initialParticleState);
+
+
+		// cycle which buffer is being pointed to by the state variables
+		function cycleParticleStates() {
+			const tmp = prevParticlePosition;
+			prevParticlePosition = currParticlePosition;
+			currParticlePosition = nextParticlePosition;
+			nextParticlePosition = tmp;
+		}
+
+
+		// create array of indices into the particle texture for each particle
+		const particleTextureIndex = [];
+		for (let i = 0; i < sqrtNumParticles; i++) {
+			for (let j = 0; j < sqrtNumParticles; j++) {
+				particleTextureIndex.push(i / (sqrtNumParticles), j / (sqrtNumParticles));
+			}
+		}
+		const shader_name = this.constructor.shader_name
+
+		console.log('Compiling shaders: ', shader_name)
+		const drawParticles = regl({
+			attributes: {
+				particleTextureIndex,
+			},
+
+			primitive: 'points',
+			count: numParticles,
+
+			depth: {
+				enable: true,
+				mask: false,
+			},
+
+			// Uniforms: global data available to the shader
+			uniforms: {
+				pointWidth,
+				particlePosition: () => currParticlePosition, // important to use a function here. Otherwise it would cache and not use the newest buffer.
+				particleLifetime: particleAge,
+				mat_mvp: regl.prop('mat_mvp'),
+				u_time: regl.prop('u_time'),
+			},
+
+			blend: {
+				enable: true,
+				func: {
+					src: 'src alpha',
+					dst: 'one minus src alpha',
+				},
+				equation: {
+					rgb: 'add',
+					alpha: 'add'
+				},
+				color: [0., 0., 0., 0.],
+			},
+
+			vert: this.get_resource_checked(`${shader_name}draw.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}draw.frag.glsl`),
+		})
+
+		const updateParticles = regl({
+			//IMPORTANT : Write to a framebuffer, not to the screen!!!
+			framebuffer: () => nextParticlePosition,
+
+			attributes: {
+				position: [
+					-4, 0,
+					4, 4,
+					4, -4
+				]
+			},
+
+			// pass in previous states to work from
+			uniforms: {
+				// must use a function so it gets updated each call
+				currParticleState: () => currParticlePosition,
+				prevParticleState: () => prevParticlePosition,
+				particleLifetime: particleAge,
+				u_time: regl.prop('u_time'),
+			},
+
+			// it's a triangle - 3 vertices
+			count: 3,
+			vert: this.get_resource_checked(`${shader_name}update.vert.glsl`),
+			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
+		});
+
+		this.pipeline = (frame_info) => {
+			// draw the points using our created regl func
+			drawParticles({
+				mat_mvp: this.mat_mvp,
+				u_time : frame_info.sim_time,
+			});
+
+			// update position of particles in state buffers
+			updateParticles({
+				u_time : frame_info.sim_time,
+			});
+
+			// update pointers for next, current, and previous particle states
+			cycleParticleStates();
+
+		};
+
+			
+	}
+
+	calculate_model_matrix({camera_position}) {
+
+		// Compute the this.mat_model_to_world, which makes the normal of the billboard always point to our eye.
+		mat4.identity(this.mat_model_to_world);
+		const nb = vec3.fromValues(0.,0.,1.);
+		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
+		const rotation_axis = cross(vec3.create(), nb, camera_position);
+		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
+		const translation = mat4.fromTranslation(mat4.create(), [0., 0., 6.]);
+		const scale = mat4.fromScaling(mat4.create(), [11.5, 11.5, 11.5]);
+		//console.error(camera_position);
+		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation, scale);
 
 	}
 
