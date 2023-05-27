@@ -528,14 +528,14 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
 		});
 
-		this.pipeline = (frame_info) => {
+		this.pipeline = (frame_info, cinema_mode) => {
 
 			//runParticleFireSystem();
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
 				u_time : frame_info.sim_time,
-				width_factor: 1 / (frame_info.cam_distance_factor),
+				width_factor: cinema_mode ? 10 / (length(frame_info.camera_position)) : 1 / (frame_info.cam_distance_factor),
 			});
 
 			// update position of particles in state buffers
@@ -665,11 +665,11 @@ export class SysRenderParticlesFire extends SysRenderMeshes {
 
 	}
 
-	render(frame_info) {
+	render(frame_info, cinema_mode) {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
 		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
-		this.pipeline(frame_info);
+		this.pipeline(frame_info, cinema_mode);
 	}
 
 	check_scene(scene_info) {
@@ -840,13 +840,13 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
 		});
 
-		this.pipeline = (frame_info) => {
+		this.pipeline = (frame_info, cinema_mode) => {
 	
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
 				u_time : frame_info.sim_time,
-				width_factor: this.pointWidth / frame_info.cam_distance_factor,
+				width_factor: cinema_mode ?  17 * this.pointWidth / length(frame_info.camera_position) : this.pointWidth / frame_info.cam_distance_factor,
 			});
 
 			// update position of particles in state buffers
@@ -874,11 +874,11 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 
 	}
 
-	render(frame_info) {
+	render(frame_info, cinema_mode) {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
 		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
-		this.pipeline(frame_info);
+		this.pipeline(frame_info, cinema_mode);
 	}
 
 	check_scene(scene_info) {
@@ -1032,12 +1032,12 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
 		});
 
-		this.pipeline = (frame_info) => {
+		this.pipeline = (frame_info, cinema_mode) => {
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
 				u_time : frame_info.sim_time ,
-				width_factor: 2 * this.pointWidth / frame_info.cam_distance_factor,
+				width_factor: cinema_mode ? 20 * this.pointWidth / length(frame_info.camera_position) : 2 * this.pointWidth / frame_info.cam_distance_factor,
 			});
 
 			// update position of particles in state buffers
@@ -1067,11 +1067,11 @@ export class SysRenderParticlesSmoke extends SysRenderMeshes {
 
 	}
 
-	render(frame_info) {
+	render(frame_info, cinema_mode) {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
 		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
-		this.pipeline(frame_info);
+		this.pipeline(frame_info, cinema_mode);
 	}
 
 	check_scene(scene_info) {
