@@ -305,7 +305,7 @@ async function main() {
 
 		} else */
 		//if (render_mode == 'Shadows') {			
-			const sky_info =  scene_info.actors.slice(4)
+			const sky_info =  scene_info.actors.slice(5)
 			const terrain_info = scene_info.actors.slice(0,4)
 			sys_render_light.render(frame_info, {
 				sim_time: scene_info.sim_time,
@@ -323,13 +323,6 @@ async function main() {
 		smoke.render(frame_info);
 		fire.render(frame_info);
 		//particles.render(frame_info);
-<<<<<<< HEAD
-		//smoke.render(frame_info);
-		cloud.render(frame_info);
-		fireflies.render(frame_info);
-=======
->>>>>>> 088c4e0d0baa97c5141b64e80108a073ce0b6ba7
-
 
 		debug_text.textContent = `
 `;
