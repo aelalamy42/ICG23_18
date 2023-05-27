@@ -15,7 +15,9 @@ void main() {
 
 	float material_shininess = 12.;
 
-	vec3 material_color = texture2D(tex_color, v2f_uv).xyz;
+	vec2 uv = vec2(v2f_uv.x, 1. - v2f_uv.y);
+
+	vec3 material_color = texture2D(tex_color, uv).xyz;
 	vec3 color = vec3(0.);
 	vec3 distance_to_light = light_position - v2f_vertex_position.xyz;
 	vec3 direction_to_light = normalize(distance_to_light);
