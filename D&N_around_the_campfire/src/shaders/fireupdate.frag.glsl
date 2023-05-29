@@ -8,11 +8,7 @@ uniform float u_time;
 
   // index into the texture state
 varying vec2 particleTextureIndex;
-  // seemingly standard 1-liner random function
-  // http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
-float rand(vec3 co) {
-    return fract(sin(dot(co.xyz, vec3(12.9898, 78.233, 43.4795))) * 43758.5453);
-}
+
 float rand(vec2 co)
 {
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
@@ -45,20 +41,17 @@ float hash_poly(float x) {
 	return mod(((x*34.0)+1.0)*x, 289.0);
 }
 
-// -- Hash function --
-// Map a gridpoint to 0..(NUM_GRADIENTS - 1)
+
 int hash_func(vec2 grid_point) {
 	return int(mod(hash_poly(hash_poly(grid_point.x) + grid_point.y), float(NUM_GRADIENTS)));
 }
 
-// -- Smooth interpolation polynomial --
-// Use mix(a, b, blending_weight_poly(t))
+
 float blending_weight_poly(float t) {
 	return t*t*t*(t*(t*6.0 - 15.0)+10.0);
 }
 
 
-// We use here a perlin noise function to generate a random value and make the fire more realistic and natural
 float perlin_noise(in vec2 point) {
     vec2 c00 = floor(point);
 	vec2 c10 = c00 + vec2(1, 0);
@@ -119,12 +112,13 @@ void main() {
     noiseVal += perlin_noise((noisePos + vec2(-0.25, 0.5)) * 40.0) * 0.125;
     
     vec3 position = currPosition.xyz;
+    // Clamping the fire so it dosen't go too far on the z axis
     position.z = clamp(position.z, 0.0, 5.0);
     // Vary the position on the X and Y axes using Perlin noise
     position.x = perlin_noise(noisePos * 2.0) * 0.5;
     position.y = perlin_noise(noisePos * 3.0) * 0.5;
 
-    // Overlay
+    // Overlay to have more fire at the bottom 
     float grady = 1. - smoothstep(0., 1., currPosition.y);
     float gradx = 1. - smoothstep(0., 1., currPosition.x);
     position.x = overlay(position.x, grady);
@@ -133,7 +127,7 @@ void main() {
     float age = currPosition.w + 0.1;
     float nextZ = age;
     vec4 lifetime = texture2D(particleLifetime, particleTextureIndex);
-    // randomising the lifetime of each fire particle to make it more realistic 
+    // Randomising the lifetime of each fire particle to make it more realistic 
     lifetime.x = lifetime.x + (rand(particleTextureIndex) + 1. ) * 1.;
     float start_time = lifetime.y + (rand(particleTextureIndex) + 1. ) * 2.;
     if (age > lifetime.x){
