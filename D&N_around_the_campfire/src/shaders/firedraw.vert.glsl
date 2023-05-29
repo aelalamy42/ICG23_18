@@ -15,18 +15,19 @@ float rand(vec2 co)
 
 void main() {
   // read in position from the state texture
-    vec4 state = texture2D(particleState, particleTextureIndex);
-    float lifetime = texture2D(particleLifetime, particleTextureIndex).x;
+  vec4 state = texture2D(particleState, particleTextureIndex);
+  float lifetime = texture2D(particleLifetime, particleTextureIndex).x;
 	// scale to normalized device coordinates
 	// gl_Position is a special variable that holds the position of a vertex
-    float x = 1./8. * (lifetime - state.w);
-    alpha_factor = 5.* x*x - 2.*x*x*x;
+  float x = 1./8. * (lifetime - state.w);
+  alpha_factor = 5.* x*x - 2.*x*x*x;
 
-		// read in position from the state texture
+	// read in position from the state texture
   vec3 position = texture2D(particleState, particleTextureIndex).xyz;
 	idx = particleTextureIndex;
-  	// scale to normalized device coordinates
-		// gl_Position is a special variable that holds the position of a vertex
+  
+  // scale to normalized device coordinates
+	// gl_Position is a special variable that holds the position of a vertex
   gl_Position = mat_mvp * vec4(position, 1.0);
 
   // update the size of a particles based on the prop pointWidth and a random value done with noise
