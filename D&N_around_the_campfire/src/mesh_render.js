@@ -1094,9 +1094,9 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 		this.mat_scale = mat4.fromScaling(mat4.create(), [3.,3.,1]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 5;
+		const sqrtNumParticles = 10;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 15; //TODO :try more possibilites
+		const pointWidth = 30; //TODO :try more possibilites
 		const initialParticlePosition = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -1110,7 +1110,7 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
-			initialParticleState[i * 4] = Math.random() * 7 + 1; // lifetime
+			initialParticleState[i * 4] = Math.random() * 6 + 1; // lifetime
 			initialParticleState[i * 4 + 1] = Math.random() * 8; // start time
 		}
 
@@ -1254,7 +1254,7 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
 		const translation = mat4.fromTranslation(mat4.create(), [0., 0., 6.]);
-		const scale = mat4.fromScaling(mat4.create(), [11.5, 11.5, 11.5]);
+		const scale = mat4.fromScaling(mat4.create(), [9.5, 9.5, 9.5]);
 		//console.error(camera_position);
 		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation, scale);
 

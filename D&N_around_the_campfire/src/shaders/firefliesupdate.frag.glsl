@@ -17,6 +17,11 @@ const int num_octaves = 4;
 
 #define NUM_GRADIENTS 12
 
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
 // -- Gradient table --
 vec2 gradients(int i) {
 	if (i ==  0) return vec2( 1,  1);
@@ -104,23 +109,39 @@ void main() {
     vec4 prevPosition = texture2D(prevParticleState, particleTextureIndex);
     vec3 random = 0.5 - vec3(rand(currPosition.xyz), rand(10.0 * currPosition.xyz), 0.5);
     vec3 velocity = currPosition.xyz - prevPosition.xyz;
-    float age = currPosition.w + 0.1;
-    float nextX = currPosition.x + random.x * 0.1;
-    float nextY = currPosition.y + random.y * 0.1;
-    vec4 lifetime = texture2D(particleLifetime, particleTextureIndex);
-    float start_time = lifetime.y;
-    vec3 position;
+    //float nextX = 0.; currPosition.x + random.x * 0.1;
+    //float nextY = currPosition.y + random.y * 0.1;
+	vec3 position = currPosition.xyz; 
+	float const_velocity = 0.02;
+	vec3 noise_value = vec3(
+		perlin_noise(rand(particleTextureIndex * vec2(1., 0.)) + 0.01 * u_time * vec2( 1., 0.) * (-1., particleTextureIndex.x)),
+		perlin_noise(rand(particleTextureIndex * vec2(0., 1.)) + 0.01 * u_time * vec2(0., 1. ) * (- particleTextureIndex.x)),
+		perlin_noise(rand(particleTextureIndex * vec2(0.5, 0.5)) + 0.01 * u_time * vec2(0.7, 0.7))
+	);
+	position += (noise_value ) * const_velocity;
+
+	
+	float age = currPosition.w + 0.1;
+	vec4 lifetime = texture2D(particleLifetime, particleTextureIndex);
+	float start_time = lifetime.y; 
     if (age > lifetime.x){
-      nextX = turbulence(velocity.xy + vec2(turbulence(velocity.xy + u_time * 0.1))) * 0.05;
-      nextY = turbulence(velocity.xy + vec2(turbulence(velocity.xy + u_time * 0.1))) * 0.05;
+      float nextX = abs(perlin_noise((vec2(1., rand(vec2(u_time, 1.)) + currPosition.x))));
+      float nextY = abs(perlin_noise((vec2(1., rand(vec2(1., u_time)) + currPosition.y)))) ;
+	  //float nextZ = perlin_noise((velocity.xy + rand(particleTextureIndex)) * 0.1) + 0. * turbulence(velocity.xy + u_time * 0.1 * vec2(0.5, 0.5)) * 0.01;;
+	  if (3.5 *(nextX - 0.5) + 1.25 > 1.5) {
+		nextX = 3. ;
+	  } 
+	  if (3.5 *(nextY - 0.5) + 1.25 > 1.5){
+		nextY = 3.;
+	  }
       age = 0.;
+	  position = vec3(3.5 *(nextX - 0.5) + 1.25,3.5 *(nextY - 0.5) + 1.25 ,0.);
     }
     if(u_time < start_time){
         position = vec3(currPosition);
     } else {
 		// we store the new position as the color in this frame buffer
-        position.x += nextX;
-        position.y += nextY;
+        position = position;
     }
     
 		// we store the new position as the color in this frame buffer

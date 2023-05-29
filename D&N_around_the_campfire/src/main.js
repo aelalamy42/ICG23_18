@@ -245,7 +245,7 @@ async function main() {
 
 		if (! is_paused) {
 			const dt = frame.time - prev_regl_time
-			frame_info.sim_time += dt / 1
+			frame_info.sim_time += dt / 5
 		}
 		scene_info.sim_time = frame_info.sim_time
 		prev_regl_time = frame.time
