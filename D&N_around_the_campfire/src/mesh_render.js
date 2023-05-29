@@ -846,7 +846,7 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 			drawParticles({
 				mat_mvp: this.mat_mvp,
 				u_time : frame_info.sim_time,
-				width_factor: cinema_mode ?  17 * this.pointWidth / length(frame_info.camera_position) : this.pointWidth / frame_info.cam_distance_factor,
+				width_factor: cinema_mode ?  27 * this.pointWidth / length(frame_info.camera_position) : this.pointWidth / frame_info.cam_distance_factor,
 			});
 
 			// update position of particles in state buffers
@@ -868,7 +868,7 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
-		const translation = mat4.fromTranslation(mat4.create(), [0., 0., -0.05]);
+		const translation = mat4.fromTranslation(mat4.create(), [0., 0., -0.09]);
 		//console.error(camera_position);
 		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
 

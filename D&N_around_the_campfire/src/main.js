@@ -55,9 +55,6 @@ async function main() {
 	const debug_text = document.getElementById('debug-text')
 	register_keyboard_action('h', () => debug_overlay.classList.toggle('hidden'))
 	
-	// Pause
-	let is_paused = false
-	register_keyboard_action('p', () => is_paused = !is_paused);
 
 	let speed = 5
 	register_keyboard_action('1', () => speed = 5);
@@ -65,10 +62,11 @@ async function main() {
 	register_keyboard_action('3', () => speed = 0.75);
 
 	// Pause
-	let cinema_mode = false
+	let cinema_mode = true
 	register_keyboard_action('c', () => {
 		cinema_mode = !cinema_mode;
 		speed = 5;
+		set_predef_view_1();
 	});
 
 
@@ -92,9 +90,8 @@ async function main() {
 		console.log(frame_info)
 	})
 	*/const set_predef_view_1 = () => {
-		is_paused = true
 
-		frame_info.sim_time = 1.
+		frame_info.sim_time = Math.max(0., frame_info.sim_time);
 		frame_info.cam_angle_z = -2.731681469282041
 		frame_info.cam_angle_y = 
 		-0.4785987755982989
@@ -262,7 +259,6 @@ async function main() {
 	})
 
 	set_predef_view_1();
-	is_paused = false
 
 	/*---------------------------------------------------------------
 		Render loop
@@ -283,11 +279,8 @@ async function main() {
 		const {mat_view, mat_projection, mat_turntable, light_position_cam, light_position_world, camera_position} = frame_info
 
 		const scene_info = scenes.Shadows
-
-		if (! is_paused) {
 			const dt = frame.time - prev_regl_time
 			frame_info.sim_time += dt / speed
-		}
 		scene_info.sim_time = frame_info.sim_time
 		prev_regl_time = frame.time
 
@@ -359,8 +352,8 @@ async function main() {
 		//}
 		cloud.render(frame_info, cinema_mode);
 		smoke.render(frame_info, cinema_mode);
-		fire.render(frame_info, cinema_mode);
 		fireflies.render(frame_info, cinema_mode);
+		fire.render(frame_info, cinema_mode);
 		//particles.render(frame_info);
 		//smoke.render(frame_info);*
 		debug_text.textContent = ``;
