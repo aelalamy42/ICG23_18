@@ -1,5 +1,5 @@
 import {vec3, vec4, mat3, mat4} from "../lib/gl-matrix_3.3.0/esm/index.js"
-import {mat4_to_string, vec_to_string, mat4_matmul_many} from "./icg_math.js"
+import {mat4_matmul_many} from "./icg_math.js"
 
 import {icg_mesh_make_uv_sphere, icg_mesh_load_obj_into_regl, mesh_upload_to_buffer} from "./icg_mesh.js"
 import {load_image, load_text, load_texture} from "./icg_web.js"
@@ -93,9 +93,6 @@ function textures_construct(regl, resources) {
 		})
 	}
 
-	resources['tex_red'] = make_texture_from_color([0.7, 0.15, 0.05])
-	resources['tex_gold'] = make_texture_from_color([0.7, 0.5, 0.0])
-	resources['tex_blue'] = make_texture_from_color([0.1, 0.5, 0.7])
 	resources['tex_blue'] = make_texture_from_color([0.1, 0.5, 0.7])
 	resources['tex_green'] = make_texture_from_color([0.192, 0.553, 0.])
 }
@@ -157,35 +154,12 @@ export async function load_resources(regl) {
 
 	// Start downloads in parallel
 	const resource_promises = {}
-	
-/*	const textures_to_load = [
-		'outdoor_umbrellas_2k.webp',
-		'venice_sunrise_2k.webp',
-	]
-	for(const texture_name of textures_to_load) {
-		resource_promises[texture_name] = load_texture(regl, `./textures/${texture_name}`)
-	}
-
-	*/
-	/* #TODO GL3.1.2: Set the texture options of the tile texture so that it repeats.
-		Consider the 'wrap' option described here:
-		https://github.com/regl-project/regl/blob/master/API.md#textures
-	*/
-	/*const tex_load_options = {
-		wrap: 'repeat'
-	}
-	const scene_tex_name = 'Compgraph.mtl'
-	resource_promises[scene_tex_name] = load_texture(regl, `./meshes/${scene_tex_name}`, tex_load_options)*/
 
 	// We load cube sides as images because we will put them into the cubemap constructor
 	for(let cube_side_idx = 0; cube_side_idx < 6; cube_side_idx++) {
 		const texture_name = `cube_side_${cube_side_idx}.png`
 		resource_promises[texture_name] = load_image(`./textures/${texture_name}`)
 	}
-
-	resource_promises['clouds'] = load_texture(regl, './textures/clouds.jpg', {
-		wrap: 'repeat'
-	})
 	resource_promises['text_scene'] = load_texture(regl, './textures/Merged_document.png')
 
 	const shaders_to_load = [
@@ -240,7 +214,7 @@ export function create_scene_content() {
 			light: {
 				color: [1., 0.8, 0.7],
 				intensity: 100.,
-				fire: 'yes',
+				fire: 'yes', // This is to differentiate the light of the fire from the orbit one.
 			},
 			
 		},
@@ -289,7 +263,6 @@ export function create_scene_content() {
 			mesh: 'mesh_sphere',
 			material: {
 				texture: 'tex_blue',
-				mask: 'tex_blue',
 			}
 		}
 
