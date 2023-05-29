@@ -1,20 +1,25 @@
-// set the precision of floating point numbers
 precision mediump float;
-  // this value is populated by the vertex shader
+
 uniform float u_time;
-varying vec3 fragColor;
 uniform sampler2D particleLifetime;
 uniform sampler2D particleState;
+
 varying vec2 idx;
 varying float alpha_factor;
+
+// Constants for FBM
+const float freq_multiplier = 2.17;
+const float ampl_multiplier = 0.5;
+const int num_octaves = 4;
+
   #define NUM_GRADIENTS 12
 
-  //sum = pixel(x+1, y) + pixel(x-1, y) + pixel(x, y+1) + pixel(x, y-1)
-  //pixel(x, y - 1) = (sum / 4) - cooling_amount
+// random function 
 float rand(vec2 co)
 {
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
+
   // -- Gradient table --
 vec2 gradients(int i) {
     if(i == 0)
@@ -48,22 +53,16 @@ float hash_poly(float x) {
     return mod(((x * 34.0) + 1.0) * x, 289.0);
 }
 
-// -- Hash function --
-// Map a gridpoint to 0..(NUM_GRADIENTS - 1)
+
 int hash_func(vec2 grid_point) {
     return int(mod(hash_poly(hash_poly(grid_point.x) + grid_point.y), float(NUM_GRADIENTS)));
 }
 
-// -- Smooth interpolation polynomial --
-// Use mix(a, b, blending_weight_poly(t))
+
 float blending_weight_poly(float t) {
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-// Constants for FBM
-const float freq_multiplier = 2.17;
-const float ampl_multiplier = 0.5;
-const int num_octaves = 4;
 
 float perlin_noise(vec2 point) {
     vec2 c00 = floor(point);
@@ -93,10 +92,6 @@ float perlin_noise(vec2 point) {
 }
 
 float perlin_fbm(vec2 point) {
-	/* #TODO PG1.4.2
-	Implement 2D fBm as described in the handout. Like in the 1D case, you
-	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
-	*/
     float res = 0.;
     for(int i = 0; i < num_octaves; i++) {
         res += pow(ampl_multiplier, float(i)) * perlin_noise(point * pow(freq_multiplier, float(i)));
@@ -105,13 +100,11 @@ float perlin_fbm(vec2 point) {
 }
 
 void main() {
-	// gl_FragColor is a special variable that holds the color of a pixel
   vec2 cxy = gl_PointCoord - vec2(0.5);
   float d = dot(cxy, cxy);
   float g = 2. * exp(-3. * d) - 1.;
-  //float alpha = abs(sin(u_time)) * (g + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx)) + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx);
   float alpha = (atan(5. * sin(u_time), 1.) / atan(5., 1.) + 1.)/ 2. * (g + 0.5 * perlin_fbm((gl_PointCoord + 3. * idx)));
-  vec3 color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), (alpha + 1.)/2.);
+  vec3 color;
 	
   vec4 state = texture2D(particleState, idx);
   vec4 lifetime = texture2D(particleLifetime, idx);

@@ -4,8 +4,6 @@ attribute vec2 particleTextureIndex;
 uniform sampler2D particlePosition;
 uniform sampler2D particleLifetime;
 uniform mat4 mat_mvp;
-// variables to send to the fragment shader
-varying vec3 fragColor;
 varying vec2 idx;
 varying float alpha_factor;
 // values that are the same for all vertices

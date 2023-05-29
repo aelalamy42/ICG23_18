@@ -4,7 +4,6 @@ precision mediump float;
 uniform float u_time;
 
 // this value is populated by the vertex shader
-varying vec3 fragColor;
 varying vec2 idx;
 varying float alpha_factor;
   #define NUM_GRADIENTS 12
@@ -86,26 +85,13 @@ float perlin_noise(vec2 point) {
     return result;
 }
 
-float perlin_fbm(vec2 point) {
-	/* #TODO PG1.4.2
-	Implement 2D fBm as described in the handout. Like in the 1D case, you
-	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
-	*/
-    float res = 0.;
-    for(int i = 0; i < num_octaves; i++) {
-        res += pow(ampl_multiplier, float(i)) * perlin_noise(point * pow(freq_multiplier, float(i)));
-    }
-    return res;
-}
 void main() {
     vec2 cxy = gl_PointCoord - vec2(0.5);
     float d = dot(cxy, cxy);
     float g = 2. * exp(-3. * d) - 1.2;
-    float alpha = (atan(5. * sin(u_time), 1.) / atan(5., 1.) + 1.)/ 2. * (3.*g);
+    float alpha = (atan(5. * sin(u_time), 1.) / atan(5., 1.) + 1.)/ 2. * (3. * g);
     vec3 colorfireflies1 = vec3(0.28, 1.0, 0.38);
     vec3 colorfireflies2 = vec3(0.95, 0.77, 0.16);
     vec3 color = mix(colorfireflies1, colorfireflies2, length(idx) * alpha_factor);
-
-    // gl_FragColor is a special variable that holds the color of a pixel
     gl_FragColor = vec4(color, alpha_factor * alpha);
 }
