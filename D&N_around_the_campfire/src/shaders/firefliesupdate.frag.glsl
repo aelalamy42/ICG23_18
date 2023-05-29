@@ -2,7 +2,6 @@
 precision mediump float;
   // states to read from to get velocity
 uniform sampler2D currParticleState;
-uniform sampler2D prevParticleState;
 uniform sampler2D particleLifetime;
 uniform float u_time;
 
@@ -84,35 +83,10 @@ float perlin_noise(in vec2 point) {
 	return result;
 }
 
-float turbulence(vec2 point) {
-	float res = 0.;
-	for(int i = 0; i < num_octaves; i++) {
-		res += pow(ampl_multiplier, float(i)) * abs(perlin_noise(point * pow(freq_multiplier, float(i))));
-	}
-	return res;
-}
-
-float overlay(float a, float b) {        
-    if (a < .5) {
-        return 2. * a * b;
-    } else {
-        return 1. - 2. * (1. - a) * (1. - b);
-    }
-}
-
-float rand(vec3 co) {
-    return fract(sin(dot(co.xyz, vec3(12.9898, 78.233, 43.4795))) * 43758.5453);
-}
-
 void main() {
     vec4 currPosition = texture2D(currParticleState, particleTextureIndex);
-    vec4 prevPosition = texture2D(prevParticleState, particleTextureIndex);
-    vec3 random = 0.5 - vec3(rand(currPosition.xyz), rand(10.0 * currPosition.xyz), 0.5);
-    vec3 velocity = currPosition.xyz - prevPosition.xyz;
-    //float nextX = 0.; currPosition.x + random.x * 0.1;
-    //float nextY = currPosition.y + random.y * 0.1;
 	vec3 position = currPosition.xyz; 
-	float const_velocity = 0.02;
+	float const_velocity = 0.02; // the velocity for the particles
 	vec3 noise_value = vec3(
 		perlin_noise(rand(particleTextureIndex * vec2(1., 0.)) + 0.01 * u_time * vec2( 1., 0.) * (-1., particleTextureIndex.x)),
 		perlin_noise(rand(particleTextureIndex * vec2(0., 1.)) + 0.01 * u_time * vec2(0., 1. ) * (- particleTextureIndex.x)),
@@ -127,7 +101,6 @@ void main() {
     if (age > lifetime.x){
       float nextX = abs(perlin_noise((vec2(1., rand(vec2(u_time, 1.)) + currPosition.x))));
       float nextY = abs(perlin_noise((vec2(1., rand(vec2(1., u_time)) + currPosition.y)))) ;
-	  //float nextZ = perlin_noise((velocity.xy + rand(particleTextureIndex)) * 0.1) + 0. * turbulence(velocity.xy + u_time * 0.1 * vec2(0.5, 0.5)) * 0.01;;
 	  if (3.5 *(nextX - 0.5) + 1.25 > 1.5) {
 		nextX = 3. ;
 	  } 
@@ -139,11 +112,7 @@ void main() {
     }
     if(u_time < start_time){
         position = vec3(currPosition);
-    } else {
-		// we store the new position as the color in this frame buffer
-        position = position;
     }
-    
-		// we store the new position as the color in this frame buffer
+	// we store the new position as the color in this frame buffer
     gl_FragColor = vec4(position, age);
 }

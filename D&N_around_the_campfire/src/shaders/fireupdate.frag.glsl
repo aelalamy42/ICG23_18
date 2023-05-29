@@ -119,12 +119,6 @@ void main() {
     noiseVal += perlin_noise((noisePos + vec2(-0.25, 0.5)) * 40.0) * 0.125;
     
     vec3 position = currPosition.xyz;
-    //if (position.z > 5.) {
-    //    position = position - vec3(0., 0.,  0.5 * noiseVal); // TODO à revoir 
-    //} else {
-    //    position = position + vec3(0., 0.,  0.1 * noiseVal);
-    //}
-    // Keep the particles within the specified range on the Z-axis
     position.z = clamp(position.z, 0.0, 5.0);
     // Vary the position on the X and Y axes using Perlin noise
     position.x = perlin_noise(noisePos * 2.0) * 0.5;
@@ -149,7 +143,7 @@ void main() {
       gl_FragColor = vec4(currPosition);
     } else {
       position.z = nextZ;
-		// we store the new position as the color in this frame buffer
+		  // we store the new position as the color in this frame buffer
       gl_FragColor = vec4(position, age);
     }
 }

@@ -4,7 +4,6 @@ precision mediump float;
 uniform float u_time;
 
 // this value is populated by the vertex shader
-varying vec3 fragColor;
 varying vec2 idx;
 varying float alpha_factor;
   #define NUM_GRADIENTS 12
@@ -105,7 +104,6 @@ void main() {
     vec3 colorfireflies1 = vec3(0.28, 1.0, 0.38);
     vec3 colorfireflies2 = vec3(0.95, 0.77, 0.16);
     vec3 color = mix(colorfireflies1, colorfireflies2, length(idx) * alpha_factor);
-
     // gl_FragColor is a special variable that holds the color of a pixel
     gl_FragColor = vec4(color, alpha_factor * alpha);
 }

@@ -2,7 +2,6 @@
 precision mediump float;
   // this value is populated by the vertex shader
 uniform float u_time;
-varying vec3 fragColor;
 uniform sampler2D particleLifetime;
 uniform sampler2D particleState;
 varying vec2 idx;
@@ -105,13 +104,11 @@ float perlin_fbm(vec2 point) {
 }
 
 void main() {
-	// gl_FragColor is a special variable that holds the color of a pixel
   vec2 cxy = gl_PointCoord - vec2(0.5);
   float d = dot(cxy, cxy);
   float g = 2. * exp(-3. * d) - 1.;
-  //float alpha = abs(sin(u_time)) * (g + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx)) + 0.5 * perlin_fbm(gl_PointCoord + 3. * idx);
   float alpha = (atan(5. * sin(u_time), 1.) / atan(5., 1.) + 1.)/ 2. * (g + 0.5 * perlin_fbm((gl_PointCoord + 3. * idx)));
-  vec3 color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), (alpha + 1.)/2.);
+  vec3 color;
 	
   vec4 state = texture2D(particleState, idx);
   vec4 lifetime = texture2D(particleLifetime, idx);
