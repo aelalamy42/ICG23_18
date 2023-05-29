@@ -9,10 +9,6 @@ varying float alpha_factor;
 // values that are the same for all vertices
 uniform float pointWidth;
 
-float rand(vec2 co)
-{
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-}
 
 void main() {
 	// read in position from the state texture

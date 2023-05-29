@@ -100,6 +100,8 @@ float perlin_fbm(vec2 point) {
 }
 
 void main() {
+  // Using alpha to make a periodic function used to dim the light at the end of the cycle 
+  // And using perlin_fbm make random variations of the alpha to make it more realistic
   vec2 cxy = gl_PointCoord - vec2(0.5);
   float d = dot(cxy, cxy);
   float g = 2. * exp(-3. * d) - 1.;
@@ -108,17 +110,19 @@ void main() {
 	
   vec4 state = texture2D(particleState, idx);
   vec4 lifetime = texture2D(particleLifetime, idx);
-	float age = state.w;
-  float start_time = lifetime.y + (rand(idx) + 1. ) * 2.;
-  if (age < start_time / 3.){
+	float age = state.w; // we saved the age as the 4th attribute of the state
+  // randomise how the fire elvolves for each particle to make it more realistic
+  float fire_evolution = lifetime.y + (rand(idx) + 1. ) * 2.;
+  // make color variations depending on the age of the particle
+  if (age < fire_evolution / 3.){
     color = vec3(1.0, 0.98, 0.51);
-  }else if (age < start_time / 2.){
+  }else if (age < fire_evolution / 2.){
     color = vec3(1.0, 0.92, 0.0);
-  } else if (age < start_time * 2. / 3. ) {
+  } else if (age < fire_evolution * 2. / 3. ) {
     color = mix( vec3(1.0, 0.53, 0.0), vec3(1.0, 0.95, 0.57), -(alpha + 1.)/2.);
-  } else if (age < start_time ) {
+  } else if (age < fire_evolution ) {
     color = vec3(0.88, 0.2, 0.17);
-    alpha = alpha * 0.5;
+    alpha = alpha * 0.5; // dim the alpha a bit because the red is too bright for a more realistic effect
   } else {
     color = mix(vec3(1.0, 1.0, 0.0), vec3(1.0, 0.0, 0.0), (alpha + 1.)/2.);
     alpha = alpha * 0.5;

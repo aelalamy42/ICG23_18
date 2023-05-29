@@ -15,7 +15,7 @@ const vec3 text_color = vec3(0.91, 0.28, 0.08);
 void main () {
 
 	vec2 grid_cell = floor(v2f_position);
-	vec2 pos_within_grid = v2f_position - grid_cell; // same as fract(v2f_position)
+	vec2 pos_within_grid = v2f_position - grid_cell; 
 
 	float direction_switch = grid_cell.y >= 1. ? 1. : -1.;
 	vec2 tex_coord = 2. * (pos_within_grid - 0.5);
@@ -33,7 +33,6 @@ void main () {
 	vec4 cubemap_value = textureCube(cubemap_to_show, point_to_sample);
 	vec4 annotation_value = textureCube(cubemap_annotation, point_to_sample);
 
-	// gl_FragColor = vec4(vec3(cubemap_value.r * 0.1), 1.0);
 	gl_FragColor = vec4(cubemap_value.rgb * color_factor, 1.0);
 
 

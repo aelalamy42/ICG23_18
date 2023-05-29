@@ -1,18 +1,10 @@
-	// set the precision of floating point numbers
 precision mediump float;
-  // states to read from to get velocity
+
 uniform sampler2D currParticleState;
 uniform sampler2D particleLifetime;
 uniform float u_time;
 
-  // index into the texture state
 varying vec2 particleTextureIndex;
-  // seemingly standard 1-liner random function
-  // http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
-
-const float freq_multiplier = 2.17;
-const float ampl_multiplier = 0.5;
-const int num_octaves = 4;
 
 #define NUM_GRADIENTS 12
 
@@ -21,7 +13,6 @@ float rand(vec2 co)
     return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
 
-// -- Gradient table --
 vec2 gradients(int i) {
 	if (i ==  0) return vec2( 1,  1);
 	if (i ==  1) return vec2(-1,  1);
@@ -42,20 +33,17 @@ float hash_poly(float x) {
 	return mod(((x*34.0)+1.0)*x, 289.0);
 }
 
-// -- Hash function --
-// Map a gridpoint to 0..(NUM_GRADIENTS - 1)
+
 int hash_func(vec2 grid_point) {
 	return int(mod(hash_poly(hash_poly(grid_point.x) + grid_point.y), float(NUM_GRADIENTS)));
 }
 
-// -- Smooth interpolation polynomial --
-// Use mix(a, b, blending_weight_poly(t))
+
 float blending_weight_poly(float t) {
 	return t*t*t*(t*(t*6.0 - 15.0)+10.0);
 }
 
 
-// We use here a perlin noise function to generate a random value and make the fire more realistic and natural
 float perlin_noise(in vec2 point) {
     vec2 c00 = floor(point);
 	vec2 c10 = c00 + vec2(1, 0);
@@ -92,27 +80,32 @@ void main() {
 		perlin_noise(rand(particleTextureIndex * vec2(0., 1.)) + 0.01 * u_time * vec2(0., 1. ) * (- particleTextureIndex.x)),
 		perlin_noise(rand(particleTextureIndex * vec2(0.5, 0.5)) + 0.01 * u_time * vec2(0.7, 0.7))
 	);
-	position += (noise_value ) * const_velocity;
-
+	position += (noise_value ) * const_velocity; // Updating the position of the fireflies to make the movement look like a particle stream
 	
 	float age = currPosition.w + 0.1;
 	vec4 lifetime = texture2D(particleLifetime, particleTextureIndex);
 	float start_time = lifetime.y; 
+	// Reseting the position randomly using the time and perlin noise
     if (age > lifetime.x){
-      float nextX = abs(perlin_noise((vec2(1., rand(vec2(u_time, 1.)) + currPosition.x))));
-      float nextY = abs(perlin_noise((vec2(1., rand(vec2(1., u_time)) + currPosition.y)))) ;
-	  if (3.5 *(nextX - 0.5) + 1.25 > 1.5) {
-		nextX = 3. ;
-	  } 
-	  if (3.5 *(nextY - 0.5) + 1.25 > 1.5){
-		nextY = 3.;
-	  }
-      age = 0.;
-	  position = vec3(3.5 *(nextX - 0.5) + 1.25,3.5 *(nextY - 0.5) + 1.25 ,0.);
+		age = 0.;
+		float nextX = abs(perlin_noise((vec2(1., rand(vec2(u_time, 1.)) + currPosition.x))));
+    	float nextY = abs(perlin_noise((vec2(1., rand(vec2(1., u_time)) + currPosition.y))));
+		// Translating our uniformly distributed particle initialisation
+	  	float X = 3.5 *(nextX - 0.5) + 1.25;
+	  	float Y = 3.5 *(nextY - 0.5) + 1.25;
+	  	// Reseting the position 
+	  	if (X > 1.5) {
+			X = 2.5 ;
+	  	} 
+	  	if (Y > 1.5){
+			Y = 2.5;
+	  	}
+	  	position = vec3(X,Y,0.);
     }
+	// If it didn't start the particles shouldn't move
     if(u_time < start_time){
         position = vec3(currPosition);
     }
-	// we store the new position as the color in this frame buffer
+	// We store the new position as the color in this frame buffer
     gl_FragColor = vec4(position, age);
 }

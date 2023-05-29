@@ -3,11 +3,13 @@ precision mediump float;
 
 uniform float u_time;
 
-// this value is populated by the vertex shader
-varying vec3 fragColor;
 varying vec2 idx;
 varying float alpha_factor;
   #define NUM_GRADIENTS 12
+
+const float freq_multiplier = 2.17;
+const float ampl_multiplier = 0.5;
+const int num_octaves = 4;
 
 // -- Gradient table --
 vec2 gradients(int i) {
@@ -54,10 +56,6 @@ float blending_weight_poly(float t) {
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
 
-// Constants for FBM
-const float freq_multiplier = 2.17;
-const float ampl_multiplier = 0.5;
-const int num_octaves = 4;
 
 float perlin_noise(vec2 point) {
     vec2 c00 = floor(point);
@@ -87,10 +85,6 @@ float perlin_noise(vec2 point) {
 }
 
 float perlin_fbm(vec2 point) {
-	/* #TODO PG1.4.2
-	Implement 2D fBm as described in the handout. Like in the 1D case, you
-	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
-	*/
     float res = 0.;
     for(int i = 0; i < num_octaves; i++) {
         res += pow(ampl_multiplier, float(i)) * perlin_noise(point * pow(freq_multiplier, float(i)));
@@ -103,6 +97,5 @@ void main() {
     float g = 2. * exp(-3. * d) - 1.2;
     float alpha = (atan(5. * sin(u_time + 1.57 + 0.785), 1.) / atan(5., 1.) + 1.)/ 2. * (atan(5. * sin(u_time + 3.14+ 0.785), 1.) / atan(5., 1.) + 1.)/ 2.* (g + 0.5 * perlin_fbm((gl_PointCoord + vec2(0.05*u_time) + 3. * idx)));
     vec3 color = mix(vec3(0.675, 0.651, 0.588), vec3(0.212, 0.196,0.196), length(idx));
-    // gl_FragColor is a special variable that holds the color of a pixel
     gl_FragColor = vec4(color, alpha_factor * alpha);
 }

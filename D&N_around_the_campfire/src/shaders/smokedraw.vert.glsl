@@ -15,7 +15,7 @@ void main() {
     vec4 state = texture2D(particlePosition, particleTextureIndex);
     float lifetime = texture2D(particleLifetime, particleTextureIndex).x;
 	// copy color over to fragment shader
-    fragColor = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(particleTextureIndex));//TODO: enlever ca
+    fragColor = mix(vec3(1.), vec3(0.776, 0.78, 0.855), length(particleTextureIndex));
     idx = particleTextureIndex;
 	// scale to normalized device coordinates
 	// gl_Position is a special variable that holds the position of a vertex
