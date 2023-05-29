@@ -3,12 +3,10 @@ precision mediump float;
 
 uniform float u_time;
 
-// this value is populated by the vertex shader
-varying vec3 fragColor;
 varying vec2 idx;
   #define NUM_GRADIENTS 12
 
-// -- Gradient table --
+
 vec2 gradients(int i) {
     if(i == 0)
         return vec2(1, 1);
@@ -41,14 +39,12 @@ float hash_poly(float x) {
     return mod(((x * 34.0) + 1.0) * x, 289.0);
 }
 
-// -- Hash function --
-// Map a gridpoint to 0..(NUM_GRADIENTS - 1)
+
 int hash_func(vec2 grid_point) {
     return int(mod(hash_poly(hash_poly(grid_point.x) + grid_point.y), float(NUM_GRADIENTS)));
 }
 
-// -- Smooth interpolation polynomial --
-// Use mix(a, b, blending_weight_poly(t))
+
 float blending_weight_poly(float t) {
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
 }
@@ -86,10 +82,6 @@ float perlin_noise(vec2 point) {
 }
 
 float perlin_fbm(vec2 point) {
-	/* #TODO PG1.4.2
-	Implement 2D fBm as described in the handout. Like in the 1D case, you
-	should use the constants num_octaves, freq_multiplier, and ampl_multiplier. 
-	*/
     float res = 0.;
     for(int i = 0; i < num_octaves; i++) {
         res += pow(ampl_multiplier, float(i)) * perlin_noise(point * pow(freq_multiplier, float(i)));
@@ -105,6 +97,5 @@ void main() {
     vec3 night_color = mix( vec3(0.776, 0.78, 1.), vec3(0.043, 0.13, 0.286), length(idx));
     float night_to_day_alpha = (sin(u_time) + 1.) /2.;
     vec3 color = mix(day_color, night_color, night_to_day_alpha);
-    // gl_FragColor is a special variable that holds the color of a pixel
     gl_FragColor = vec4(color, alpha);
 }

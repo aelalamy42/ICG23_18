@@ -7,12 +7,7 @@ uniform float u_time;
 
   // index into the texture state
 varying vec2 particleTextureIndex;
-  // seemingly standard 1-liner random function
-  // http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 
-const float freq_multiplier = 2.17;
-const float ampl_multiplier = 0.5;
-const int num_octaves = 4;
 
 #define NUM_GRADIENTS 12
 
