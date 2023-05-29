@@ -59,9 +59,18 @@ async function main() {
 	let is_paused = false
 	register_keyboard_action('p', () => is_paused = !is_paused);
 
+	let speed = 5
+	register_keyboard_action('1', () => speed = 5);
+	register_keyboard_action('2', () => speed = 2);
+	register_keyboard_action('3', () => speed = 0.75);
+
 	// Pause
-	let vis_cubemap = true
-	register_keyboard_action('c', () => vis_cubemap = !vis_cubemap);
+	let cinema_mode = false
+	register_keyboard_action('c', () => {
+		cinema_mode = !cinema_mode;
+		speed = 5;
+	});
+
 
 	/*
 	// mode
@@ -164,30 +173,61 @@ async function main() {
 	---------------------------------------------------------------*/
 	const cam_distance_base = 15.
 	const rotation_speed = 0.05;
-
+	function triangle_pi_period(value){
+		const modulo = value % (2 * Math.PI) ;
+		if (modulo <= Math.PI){
+			return 18 * modulo / Math.PI  - 8;
+		}
+		else {
+			return 28 - 18 * modulo / Math.PI ;
+		}
+		/*if (modulo >= Math.PI - 1 && modulo < Math.PI){
+			return 10*modulo - 10*Math.PI + 10;
+		}
+		else if (modulo < Math.PI + 1 && modulo >= Math.PI){
+			return 10 + 10*Math.PI - 10*modulo;
+		}
+		else if (modulo >= Math.PI * 2 - 1 && modulo < Math.PI * 2){
+			return - 10 * modulo + 20 * Math.PI - 10;
+		}
+		else if (modulo <= 1) {
+			return - 10 + 10 * modulo;
+		}
+		else {
+			return 0;
+		}*/
+	}
 	function update_cam_transform(frame_info) {
 		//const {cam_angle_z, cam_angle_y, cam_distance_factor} = frame_info
 		const { cam_angle_z, cam_angle_y, cam_distance_factor, sim_time} = frame_info;
 
-		const r = cam_distance_base * cam_distance_factor;
+		const r = cam_distance_base * (cinema_mode ? 3.4693280768000003 : cam_distance_factor);
 
 		//const time = performance.now() / 1000; // Convert milliseconds to seconds
-  		const cam_angle_z_time = 10*sim_time * rotation_speed;
-		const target = [0, 5*Math.sin(sim_time), 0];
+  		//const cam_angle_z_time = 10*sim_time * rotation_speed;
+		const target = cinema_mode ? [0, 5*Math.sin(sim_time), 5] : [0, 0, 0];
+		const position = cinema_mode ? [r* Math.sin(2*sim_time), triangle_pi_period(2*sim_time), 10 + 5 * Math.cos(sim_time)] : [-r, 0, 0];
 		// Example camera matrix, looking along forward-X, edit this
 		const look_at = mat4.lookAt(mat4.create(), 
-			[-r, 5*Math.sin(sim_time), 0], // camera position in world coord
+			position, // camera position in world coord
 			target,//[0, 0, 0], // view target point
 			[0, 0, 1], // up vector
 		)
 		//const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z);
 		const yRotate = mat4.fromYRotation(mat4.create(), cam_angle_y);
-		const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z + cam_angle_z_time);
+		const zRotate = mat4.fromZRotation(mat4.create(), cam_angle_z /*+ cam_angle_z_time*/);
 		// Store the combined transform in mat_turntable
 		//mat4_matmul_many(frame_info.mat_turntable, look_at, zRotate);
 		// Store the combined transform in mat_turntable
 		// frame_info.mat_turntable = A * B * ...
-		mat4_matmul_many(frame_info.mat_turntable, look_at , yRotate, zRotate) // edit this
+		if(cinema_mode){
+			frame_info.camera_position = position;
+			console.error(frame_info.camera_position);
+			mat4_matmul_many(frame_info.mat_turntable, look_at)// , yRotate, zRotate) // edit this
+		}
+		else {
+			mat4_matmul_many(frame_info.mat_turntable, look_at , yRotate, zRotate) 
+		}
 	}
 
 	update_cam_transform(frame_info)
@@ -209,6 +249,7 @@ async function main() {
 			update_cam_transform(frame_info)
 		}
 	})
+
 
 	canvas_elem.addEventListener('wheel', (event) => {
 		// scroll wheel to zoom in or out
@@ -245,7 +286,7 @@ async function main() {
 
 		if (! is_paused) {
 			const dt = frame.time - prev_regl_time
-			frame_info.sim_time += dt / 5
+			frame_info.sim_time += dt / speed
 		}
 		scene_info.sim_time = frame_info.sim_time
 		prev_regl_time = frame.time
@@ -305,7 +346,7 @@ async function main() {
 
 		} else */
 		//if (render_mode == 'Shadows') {			
-			const sky_info =  scene_info.actors.slice(5)
+			const sky_info =  scene_info.actors.slice(4)
 			const terrain_info = scene_info.actors.slice(0,4)
 			sys_render_light.render(frame_info, {
 				sim_time: scene_info.sim_time,
@@ -315,13 +356,11 @@ async function main() {
 				sim_time: scene_info.sim_time,
 				actors: sky_info,
 			})
-			if(vis_cubemap) {
-				sys_render_light.env_capture.visualize()
-			}
 		//}
-		cloud.render(frame_info);
-		smoke.render(frame_info);
-		fire.render(frame_info);
+		cloud.render(frame_info, cinema_mode);
+		smoke.render(frame_info, cinema_mode);
+		fire.render(frame_info, cinema_mode);
+		fireflies.render(frame_info, cinema_mode);
 		//particles.render(frame_info);
 		//smoke.render(frame_info);
 		cloud.render(frame_info);
