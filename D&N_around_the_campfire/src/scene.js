@@ -228,7 +228,7 @@ export async function load_resources(regl) {
 	return resources
 }
 
-export function create_scene_content_shadows() {
+export function create_scene_content() {
 
 	const actors = [
 
