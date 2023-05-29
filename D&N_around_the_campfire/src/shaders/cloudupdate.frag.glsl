@@ -11,8 +11,6 @@ float rand(vec3 co) {
 }
 void main() {
     vec3 currPosition = texture2D(currParticleState, particleTextureIndex).xyz;
-    vec3 prevPosition = texture2D(prevParticleState, particleTextureIndex).xyz;
-    vec3 random = 0.5 - vec3(rand(currPosition), rand(10.0 * currPosition), 0.5);
     vec3 position = currPosition;
 		// we store the new position as the color in this frame buffer
     gl_FragColor = vec4(position, 1);
