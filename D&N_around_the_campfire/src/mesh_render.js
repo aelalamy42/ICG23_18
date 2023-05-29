@@ -718,12 +718,12 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 	init_pipeline(regl) {
 		this.mat_mvp = mat4.create();
 		this.mat_model_to_world = mat4.create();
-		this.mat_scale = mat4.fromScaling(mat4.create(), [35.,35.,35.]);
+		this.mat_scale = mat4.fromScaling(mat4.create(), [30.,30.,30.]);
 		// initial particles state and texture for buffer
 		// multiply by 4 for R G B A
-		const sqrtNumParticles = 45;
+		const sqrtNumParticles = 15;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		this.pointWidth = 500;//TODO :try more possibilites
+		this.pointWidth = 900;//TODO :try more possibilites
 		const initialParticleState = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -868,7 +868,7 @@ export class SysRenderParticlesCloud extends SysRenderMeshes {
 		const rotation_angle = Math.acos(dot(nb, camera_position)/length(camera_position));
 		const rotation_axis = cross(vec3.create(), nb, camera_position);
 		const rotation_mat = mat4.fromRotation(mat4.create(), rotation_angle, rotation_axis);
-		const translation = mat4.fromTranslation(mat4.create(), [0., 0., -0.01]);
+		const translation = mat4.fromTranslation(mat4.create(), [0., 0., -0.05]);
 		//console.error(camera_position);
 		mat4_matmul_many(this.mat_model_to_world, mat4.create(), this.mat_scale, translation);
 
@@ -1096,7 +1096,7 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 		// multiply by 4 for R G B A
 		const sqrtNumParticles = 5;
 		const numParticles = sqrtNumParticles * sqrtNumParticles;
-		const pointWidth = 15; //TODO :try more possibilites
+		this.pointWidth = 15; //TODO :try more possibilites
 		const initialParticlePosition = new Float32Array(numParticles * 4);
 		for (let i = 0; i < numParticles; ++i) {
 			const r = Math.sqrt(Math.random());
@@ -1174,7 +1174,7 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 
 			// Uniforms: global data available to the shader
 			uniforms: {
-				pointWidth,
+				pointWidth: regl.prop('width_factor'),
 				particlePosition: () => currParticlePosition, // important to use a function here. Otherwise it would cache and not use the newest buffer.
 				particleLifetime: particleAge,
 				mat_mvp: regl.prop('mat_mvp'),
@@ -1225,11 +1225,12 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 			frag: this.get_resource_checked(`${shader_name}update.frag.glsl`),
 		});
 
-		this.pipeline = (frame_info) => {
+		this.pipeline = (frame_info, cinema_mode) => {
 			// draw the points using our created regl func
 			drawParticles({
 				mat_mvp: this.mat_mvp,
 				u_time : frame_info.sim_time,
+				width_factor: cinema_mode ? 20* this.pointWidth / length(frame_info.camera_position) : 2.*this.pointWidth / (frame_info.cam_distance_factor),
 			});
 
 			// update position of particles in state buffers
@@ -1260,11 +1261,11 @@ export class SysRenderParticlesFireflies extends SysRenderMeshes {
 
 	}
 
-	render(frame_info) {
+	render(frame_info, cinema_mode) {
 		const { mat_projection, mat_view } = frame_info
 		this.calculate_model_matrix(frame_info);
 		mat4_matmul_many(this.mat_mvp, mat_projection, mat_view, this.mat_model_to_world);
-		this.pipeline(frame_info);
+		this.pipeline(frame_info, cinema_mode);
 	}
 
 	check_scene(scene_info) {

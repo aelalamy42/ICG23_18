@@ -205,7 +205,7 @@ async function main() {
 
 		//const time = performance.now() / 1000; // Convert milliseconds to seconds
   		//const cam_angle_z_time = 10*sim_time * rotation_speed;
-		const target = cinema_mode ? [0, 5*Math.sin(sim_time), 5] : [0, 0, 0];
+		const target = cinema_mode ? [0, 0 , 2.5*Math.sin(sim_time) + 7.5] : [0, 0, 0];
 		const position = cinema_mode ? [r* Math.sin(2*sim_time), triangle_pi_period(2*sim_time), 10 + 5 * Math.cos(sim_time)] : [-r, 0, 0];
 		// Example camera matrix, looking along forward-X, edit this
 		const look_at = mat4.lookAt(mat4.create(), 
@@ -362,9 +362,7 @@ async function main() {
 		fire.render(frame_info, cinema_mode);
 		fireflies.render(frame_info, cinema_mode);
 		//particles.render(frame_info);
-		//smoke.render(frame_info);
-		cloud.render(frame_info);
-		fireflies.render(frame_info);
+		//smoke.render(frame_info);*
 		debug_text.textContent = ``;
 	})
 }
