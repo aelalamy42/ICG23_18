@@ -35,7 +35,9 @@
 <li>The particles are rendered using the ‘points’ primitive of regl. These have the added benefit of being rendered as billboards in an optimized way by regl.<br />
 </li>
 <li>We pass the states as textures, where the rgba channels are used to convey the (x,y,z) positions, the age of the particle, its lifetime and its starting time.</li>
-<li>In order to run our particle systems, we have two pipelines: first we have an update pipeline which, based on a combination of current and previous states of each particle decides on its next state, i.e. its next position, whether they continue to live or have to be reset, etc… Our second pipeline draws the particles based on the state computed in the update pipeline.</li>
+<li>In order to run our particle systems, we have two pipelines: first we have an update pipeline which, based on a combination of current and previous states of each particle decides on its next state, i.e. its next position, whether they continue to live or have to be reset, etc… Our second pipeline draws the particles based on the state computed in the update pipeline.<br />
+</li>
+<li>We used perlin noise and turbulence in our particle systems shaders to create a more realistic texture and a more realistic movements to make them more lifelike. We also made the sizes of particles, their lifetime and their alpha value vary to add more complexity.</li>
 </ul>
 <h2 id="results">Results</h2>
 <p>We find that this video resumes quite well the results of our project, we also added a few screenshots.</p>
@@ -47,6 +49,12 @@
 <figure>
 <img src="images/Project_night.png" alt="" /><figcaption>Night rendering of our Project</figcaption>
 </figure>
+<h2 id="сontributions-from-each-team-member">Сontributions from each team member</h2>
+<ul>
+<li>Ahmed has done the implementation of the clouds and the smoke partcile systems. He had also implemented the day night cycle.</li>
+<li>Alexandra has done the implementation of the fire and the fireflies. She had also done the modifications of the blender model.</li>
+<li>Overall it was a group effort, we also helped each other for other tasks. We felt like we have done each 50% of the project.</li>
+</ul>
 <h2 id="resources">Resources</h2>
 <ul>
 <li>Blender<br />
