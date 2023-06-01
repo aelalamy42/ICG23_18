@@ -2,7 +2,6 @@
 precision mediump float;
 
 uniform sampler2D currParticleState;
-uniform sampler2D prevParticleState;
 
 varying vec2 particleTextureIndex;
 
