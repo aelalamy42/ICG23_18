@@ -49,5 +49,5 @@ We find that this video resumes quite well the results of our project, we also a
 - [Inspiration for the model](https://sketchfab.com/3d-models/teacup-house-a9a4d881c4f6458394e4fe66fc575216#download)  
 - Particle systems and animation from "OpenGL 4 Shading Language Cookbook - Second Edition"  
 - Github Gist code by Peter Beshai to understand how to render particles in regl. [link here](https://gist.github.com/pbeshai/dbed2fdac94b44d3b4573624a37fa9db)  
-- [Fire in regl] (https://erkaman.github.io/regl-fire/fire.html)  
-- [Inspirations for fire functions] (http://jiajianzhang.com/?p=289)
+- [Fire in regl](https://erkaman.github.io/regl-fire/fire.html)  
+- [Inspirations for fire functions](http://jiajianzhang.com/?p=289)
